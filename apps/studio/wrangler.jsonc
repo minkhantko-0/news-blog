@@ -1,0 +1,12 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // The admin (Sanity Studio) hosted on Cloudflare, e.g. at admin.<domain>.
+  // Workers Builds runs `pnpm run build` (sanity build → ./dist) and `wrangler deploy`.
+  "name": "news-blog-studio",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./dist",
+    // The Studio is a single-page app: every path loads index.html.
+    "not_found_handling": "single-page-application"
+  }
+}

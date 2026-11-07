@@ -12,7 +12,7 @@
     "build": "pnpm --filter web build",
     "check": "pnpm --filter web check && pnpm --filter studio check && pnpm --filter scheduler check",
     "seed:build": "pnpm --filter studio exec node seed/build-seed.ts > apps/studio/seed/sample.ndjson",
-    "seed:import": "pnpm --filter studio exec sanity dataset import seed/sample.ndjson production --replace",
+    "seed:import": "pnpm --filter studio exec sanity datasets import seed/sample.ndjson --dataset production --replace",
     "smoke": "cd apps/studio && pnpm exec sanity exec scripts/smoke-redirects.ts --with-user-token && pnpm exec sanity exec scripts/smoke-scheduler.ts --with-user-token && pnpm exec sanity exec scripts/smoke-backup.ts --with-user-token",
     "preview:worker": "pnpm --filter web build && pnpm --filter web preview:worker"
   }

@@ -19,3 +19,7 @@ apps/studio/seed/*.ndjson
 
 # IndexNow queue written by the build (see scripts/indexnow.mjs)
 .indexnow/
+
+# Personal deploy guide and Sanity exports (stay on this machine)
+DEPLOY-NEW-ACCOUNTS.md
+sanity-export*.tar.gz

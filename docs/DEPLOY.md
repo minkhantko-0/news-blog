@@ -65,7 +65,7 @@ pnpm exec wrangler d1 execute news-blog --remote --command "select created_at, t
    - **Build command:** `pnpm install --frozen-lockfile && pnpm --filter web build`
    - **Deploy command:** `cd apps/web && pnpm exec wrangler deploy && node scripts/indexnow.mjs`
    - **Build variables:**
-     - `PUBLIC_SANITY_PROJECT_ID=bgva358g`
+     - `PUBLIC_SANITY_PROJECT_ID=<your Sanity project ID>`
      - `PUBLIC_SANITY_DATASET=production`
      - `PUBLIC_SITE_URL=https://<domain>`
      - `PUBLIC_TURNSTILE_SITE_KEY=<from step 3>`
@@ -105,9 +105,11 @@ It has no public address; it only runs on its timers.
 
 ## 8. The admin (Sanity Studio)
 
+Either host it on Cloudflare so it redeploys with every push (Worker `news-blog-studio`, root directory `apps/studio`, config in `apps/studio/wrangler.jsonc`; see DEPLOY-NEW-ACCOUNTS.md), or deploy it to Sanity's free hosting by hand:
+
 ```sh
 cd apps/studio
-pnpm exec sanity deploy      # → https://hollywoodpest.sanity.studio
+pnpm exec sanity deploy      # → https://<studioHost>.sanity.studio (studioHost in sanity.cli.ts)
 ```
 
 Invite editors at sanity.io/manage → **Members**. On the free plan everyone who can edit is an Administrator.

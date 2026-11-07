@@ -1,0 +1,25 @@
+---
+/** Compact story: small thumbnail + headline. Sidebars and short lists. */
+import type { StorySummary } from '~/lib/content';
+import Img from '../ui/Img.astro';
+import TimeAgo from '../ui/TimeAgo.astro';
+
+interface Props {
+  story: StorySummary;
+  showTime?: boolean;
+}
+
+const { story, showTime = true } = Astro.props;
+---
+
+<article class="group">
+  <a href={story.href} class="flex gap-3">
+    <div class="bg-line aspect-[4/3] w-24 shrink-0 overflow-hidden sm:w-28">
+      <Img image={story.image} aspect={[4, 3]} sizes="112px" maxWidth={400} class="transition duration-500 group-hover:scale-105" />
+    </div>
+    <div class="min-w-0">
+      <h3 class="headline group-hover:text-gold-600 line-clamp-3 text-[1rem] sm:text-[1.05rem]">{story.title}</h3>
+      {showTime && <TimeAgo iso={story.publishedAt} class="mt-1 block" />}
+    </div>
+  </a>
+</article>

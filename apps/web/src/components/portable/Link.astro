@@ -1,0 +1,11 @@
+---
+/** Links in body text. Links to other sites open in a new tab. */
+interface Props {
+  node: { markDef: { href?: string } };
+}
+
+const href = Astro.props.node.markDef.href ?? '#';
+const external = /^https?:\/\//.test(href);
+---
+
+<a href={href} target={external ? '_blank' : undefined} rel={external ? 'noopener' : undefined}><slot /></a>

@@ -1,0 +1,52 @@
+---
+import type { Author } from '~/lib/content';
+import { content } from '~/lib/content';
+import { byAuthor, pageOf } from '~/lib/content/derive';
+import Pagination from '../listing/Pagination.astro';
+import Breadcrumbs from '../article/Breadcrumbs.astro';
+import StoryCard from '../story/StoryCard.astro';
+import Img from '../ui/Img.astro';
+import SectionHeading from '../ui/SectionHeading.astro';
+import SocialLinks from '../ui/SocialLinks.astro';
+
+interface Props {
+  author: Author;
+  pageNumber: number;
+}
+
+const { author, pageNumber } = Astro.props;
+const page = pageOf(byAuthor(await content.getArticles(), author.id), pageNumber);
+---
+
+<div class="mx-auto max-w-[1440px] px-3 pt-4 sm:px-4 lg:px-6 lg:pt-6">
+  <Breadcrumbs items={[{ label: author.name }]} class="mb-4" />
+  <header class="border-line mb-8 flex flex-col gap-5 border-b pb-8 sm:flex-row sm:items-center">
+    {
+      author.photo && (
+        <div class="ring-gold-400 size-28 shrink-0 overflow-hidden rounded-full ring-4 sm:size-32">
+          <Img image={author.photo} aspect={[1, 1]} sizes="128px" maxWidth={400} priority />
+        </div>
+      )
+    }
+    <div class="max-w-3xl">
+      <h1 class="headline text-[2.6rem] font-black italic sm:text-[3.2rem]">{author.name}</h1>
+      {author.role && <p class="text-gold-700 font-display text-lg font-bold uppercase">{author.role}</p>}
+      <p class="text-ink/85 mt-3 text-lg leading-relaxed">{author.bio}</p>
+      {author.social.length > 0 && <SocialLinks links={author.social} class="mt-4 gap-3" iconClass="size-6" />}
+    </div>
+  </header>
+
+  <SectionHeading title={pageNumber > 1 ? `Stories · Page ${pageNumber}` : 'Latest Stories'} />
+  {
+    page.items.length === 0 ? (
+      <p class="text-muted py-10">No stories yet.</p>
+    ) : (
+      <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {page.items.map((story) => (
+          <StoryCard story={story} />
+        ))}
+      </div>
+    )
+  }
+  <Pagination current={page.current} total={page.total} base={author.href} />
+</div>

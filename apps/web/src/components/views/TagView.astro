@@ -1,0 +1,16 @@
+---
+import type { Tag } from '~/lib/content';
+import { content } from '~/lib/content';
+import { pageOf, withTag } from '~/lib/content/derive';
+import StoryListing from '../listing/StoryListing.astro';
+
+interface Props {
+  tag: Tag;
+  pageNumber: number;
+}
+
+const { tag, pageNumber } = Astro.props;
+const page = pageOf(withTag(await content.getArticles(), tag.id), pageNumber);
+---
+
+<StoryListing kicker="Tag" title={tag.title} breadcrumbs={[{ label: `#${tag.title}` }]} page={page} base={tag.href} />

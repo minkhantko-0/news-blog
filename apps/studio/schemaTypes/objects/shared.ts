@@ -19,6 +19,40 @@ export const slugOptions: SlugOptions = {
       .slice(0, 96),
 };
 
+/** First path segments the site itself uses. Categories and pages can't take these. */
+export const RESERVED_SLUGS = [
+  'videos',
+  'originals',
+  'search',
+  'tag',
+  'author',
+  'news-tip',
+  'advertise',
+  'coming-soon',
+  'api',
+  'page',
+  'pagefind',
+  'rss',
+  'sitemap',
+];
+
+/**
+ * Validates a slug that becomes part of a URL shared with other document
+ * types: blocks reserved words and slugs already used by `clashTypes`.
+ * (Categories and pages share /<slug>/; articles and sub-categories share /<section>/<slug>/.)
+ */
+export const urlSlug =
+  (clashTypes: string[]) =>
+  async (value: { current?: string } | undefined, context: { getClient: (o: { apiVersion: string }) => { fetch: <T>(q: string, p: Record<string, unknown>) => Promise<T> } }) => {
+    const current = value?.current;
+    if (!current) return true;
+    if (RESERVED_SLUGS.includes(current)) return `"${current}" is used by the site itself. Pick another URL.`;
+    const clash = await context
+      .getClient({ apiVersion: '2026-11-01' })
+      .fetch<string | null>('*[_type in $types && slug.current == $slug][0]._type', { types: clashTypes, slug: current });
+    return clash ? `A ${clash} already uses this URL. Pick another.` : true;
+  };
+
 /** Image with the fields every published image needs. */
 export const mediaImage = defineType({
   name: 'mediaImage',

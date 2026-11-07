@@ -1,0 +1,123 @@
+---
+import type { Article } from '~/lib/content';
+import { content } from '~/lib/content';
+import { relatedTo } from '~/lib/content/derive';
+import { imageUrl } from '~/lib/images';
+import AuthorBox from '../article/AuthorBox.astro';
+import Breadcrumbs from '../article/Breadcrumbs.astro';
+import Byline from '../article/Byline.astro';
+import ShareLinks from '../article/ShareLinks.astro';
+import Sidebar from '../layout/Sidebar.astro';
+import YouTubePlayer from '../media/YouTubePlayer.astro';
+import RichText from '../portable/RichText.astro';
+import StoryCard from '../story/StoryCard.astro';
+import Img from '../ui/Img.astro';
+import SectionHeading from '../ui/SectionHeading.astro';
+import StoryTag from '../ui/StoryTag.astro';
+
+interface Props {
+  article: Article;
+}
+
+const { article } = Astro.props;
+const [articles, authors] = await Promise.all([content.getArticles(), content.getAuthors()]);
+const related = relatedTo(article, articles);
+const fullAuthors = article.authors.map((a) => authors.find((full) => full.id === a.id)).filter((a) => a !== undefined);
+const url = new URL(article.href, Astro.site).href;
+
+const crumbs = [
+  ...(article.parentCategory ? [{ label: article.parentCategory.title, href: article.parentCategory.href }] : []),
+  { label: article.category.title, href: article.category.href },
+];
+---
+
+<div class="mx-auto max-w-[1440px] px-3 pt-4 sm:px-4 lg:px-6 lg:pt-6">
+  <div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_340px] xl:gap-14">
+    <article
+      class="min-w-0"
+      data-pagefind-body
+      data-pagefind-filter={`section:${article.parentCategory?.title ?? article.category.title}`}
+      data-pagefind-meta={`image:${imageUrl(article.image, 400, 250)}`}
+    >
+      <Breadcrumbs items={crumbs} class="mb-4" />
+      <StoryTag story={article} />
+      <h1 class="headline mt-3 text-[2.2rem] font-black sm:text-[3rem] lg:text-[3.4rem]">{article.title}</h1>
+      {article.dek && <p class="text-ink/80 mt-4 text-lg leading-snug font-medium sm:text-xl">{article.dek}</p>}
+
+      <div class="border-line mt-6 flex flex-wrap items-center justify-between gap-4 border-y py-4">
+        <Byline authors={article.authors} publishedAt={article.publishedAt} updatedAt={article.updatedAt} />
+        <div data-pagefind-ignore>
+          <ShareLinks url={url} title={article.title} />
+        </div>
+      </div>
+
+      <figure class="mt-6">
+        {
+          article.video ? (
+            <YouTubePlayer youtubeId={article.video.youtubeId} title={article.video.title} image={article.image} priority />
+          ) : (
+            <Img image={article.image} aspect={[16, 10]} sizes="(min-width: 1440px) 900px, (min-width: 1024px) 65vw, 100vw" priority />
+          )
+        }
+        {
+          (article.image.caption || article.image.credit) && (
+            <figcaption class="text-muted mt-2 text-sm">
+              {article.image.caption}
+              {article.image.credit && <span class="ml-1 text-xs tracking-wide uppercase">Photo: {article.image.credit}</span>}
+            </figcaption>
+          )
+        }
+      </figure>
+
+      <RichText value={article.body} class="mt-8 lg:max-w-[760px]" />
+
+      {
+        article.correction && (
+          <aside class="border-gold-500 bg-gold-200/40 mt-8 border-l-4 p-4 lg:max-w-[760px]">
+            <p>
+              <strong class="font-display uppercase">Correction:</strong> {article.correction}
+            </p>
+          </aside>
+        )
+      }
+
+      <div data-pagefind-ignore class="mt-10 space-y-6 lg:max-w-[760px]">
+        {
+          article.tags.length > 0 && (
+            <ul class="flex flex-wrap gap-2" aria-label="Tags">
+              {article.tags.map((tag) => (
+                <li>
+                  <a href={tag.href} class="bg-line hover:bg-gold-300 inline-block px-3 py-1 text-sm font-semibold">
+                    #{tag.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+        <div class="flex items-center gap-3">
+          <span class="font-display font-extrabold uppercase">Share</span>
+          <ShareLinks url={url} title={article.title} />
+        </div>
+        {fullAuthors.map((author) => <AuthorBox author={author} />)}
+      </div>
+    </article>
+
+    <div class="lg:sticky lg:top-24 lg:self-start">
+      <Sidebar excludeId={article.id} />
+    </div>
+  </div>
+
+  {
+    related.length > 0 && (
+      <section aria-labelledby="related-title" class="mt-14">
+        <SectionHeading id="related-title" title={`More ${article.parentCategory?.title ?? article.category.title}`} />
+        <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {related.map((story) => (
+            <StoryCard story={story} />
+          ))}
+        </div>
+      </section>
+    )
+  }
+</div>

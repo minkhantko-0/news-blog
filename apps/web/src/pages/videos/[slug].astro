@@ -1,0 +1,62 @@
+---
+import Breadcrumbs from '~/components/article/Breadcrumbs.astro';
+import ShareLinks from '~/components/article/ShareLinks.astro';
+import Sidebar from '~/components/layout/Sidebar.astro';
+import VideoCard from '~/components/media/VideoCard.astro';
+import YouTubePlayer from '~/components/media/YouTubePlayer.astro';
+import SectionHeading from '~/components/ui/SectionHeading.astro';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { content, type Video } from '~/lib/content';
+import { formatDateTime } from '~/lib/format';
+
+export async function getStaticPaths() {
+  const videos = await content.getVideos();
+  return videos.map((video) => ({ params: { slug: video.slug }, props: { video } }));
+}
+
+const { video } = Astro.props as { video: Video };
+const videos = await content.getVideos();
+const more = [
+  ...videos.filter((v) => v.id !== video.id && video.show && v.show?.id === video.show.id),
+  ...videos.filter((v) => v.id !== video.id && !(video.show && v.show?.id === video.show.id)),
+].slice(0, 6);
+const url = new URL(video.href, Astro.site).href;
+---
+
+<BaseLayout title={video.title} description={video.description ?? video.title}>
+  <div class="mx-auto max-w-[1440px] px-3 pt-4 sm:px-4 lg:px-6 lg:pt-6">
+    <div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_340px] xl:gap-14">
+      <article class="min-w-0">
+        <Breadcrumbs items={[{ label: 'Videos', href: '/videos/' }, ...(video.show ? [{ label: video.show.name, href: video.show.href }] : [])]} class="mb-4" />
+        <YouTubePlayer youtubeId={video.youtubeId} title={video.title} image={video.image} priority sizes="(min-width: 1024px) 900px, 100vw" />
+        <h1 class="headline mt-5 text-[2rem] font-black sm:text-[2.8rem]">{video.title}</h1>
+        <div class="border-line mt-4 flex flex-wrap items-center justify-between gap-4 border-y py-3">
+          <p class="text-muted text-sm">
+            {video.show && <a href={video.show.href} class="text-ink font-semibold hover:underline">{video.show.name}</a>}
+            {video.show && <span aria-hidden="true"> · </span>}
+            {video.duration && <span>{video.duration} · </span>}
+            <time datetime={video.publishedAt}>{formatDateTime(video.publishedAt)}</time>
+          </p>
+          <ShareLinks url={url} title={video.title} />
+        </div>
+        {video.description && <p class="text-ink/85 mt-5 max-w-3xl text-lg leading-relaxed">{video.description}</p>}
+      </article>
+      <div class="lg:sticky lg:top-24 lg:self-start">
+        <Sidebar />
+      </div>
+    </div>
+
+    {
+      more.length > 0 && (
+        <section aria-labelledby="more-videos" class="mt-14">
+          <SectionHeading id="more-videos" title="More Videos" playIcon link={{ label: 'View all', href: '/videos/' }} />
+          <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {more.map((v) => (
+              <VideoCard video={v} />
+            ))}
+          </div>
+        </section>
+      )
+    }
+  </div>
+</BaseLayout>

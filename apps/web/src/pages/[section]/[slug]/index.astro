@@ -1,0 +1,30 @@
+---
+import ArticleView from '~/components/views/ArticleView.astro';
+import CategoryView from '~/components/views/CategoryView.astro';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { sectionChildPaths, type SectionChildRoute } from '~/lib/routes';
+
+export const getStaticPaths = sectionChildPaths;
+
+const route = Astro.props as SectionChildRoute;
+---
+
+{
+  route.kind === 'article' ? (
+    <BaseLayout
+      title={route.article.seo.title ?? route.article.title}
+      description={route.article.seo.description ?? route.article.dek ?? route.article.title}
+      noindex={route.article.seo.noindex}
+    >
+      <ArticleView article={route.article} />
+    </BaseLayout>
+  ) : (
+    <BaseLayout
+      title={route.category.seo.title ?? `${route.category.title} News`}
+      description={route.category.seo.description ?? route.category.description ?? `The latest ${route.category.title} stories.`}
+      noindex={route.category.seo.noindex}
+    >
+      <CategoryView category={route.category} pageNumber={1} />
+    </BaseLayout>
+  )
+}

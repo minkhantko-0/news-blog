@@ -1,0 +1,72 @@
+---
+/** Advertise enquiry page. Submissions go to /api/advertise (phase 3). */
+import Breadcrumbs from '~/components/article/Breadcrumbs.astro';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+
+const field = 'border-ink/25 focus:border-ink w-full rounded-sm border-2 bg-white px-3 py-2.5 outline-none';
+const label = 'font-display mb-1.5 block text-lg font-extrabold uppercase';
+
+const formats = [
+  ['Display', 'Banner placements across the site, on phones and desktop.'],
+  ['Sponsored stories', 'Branded articles written with our editorial team, clearly labelled.'],
+  ['Video', 'Pre-roll and sponsored segments in HollywoodPest Originals.'],
+  ['Social', 'Posts and stories across our social channels.'],
+];
+---
+
+<BaseLayout title="Advertise With Us" description="Reach HollywoodPest's audience across web, video and social.">
+  <div class="mx-auto grid max-w-[1200px] gap-10 px-4 pt-4 pb-10 lg:grid-cols-[1fr_1.2fr] lg:pt-6">
+    <div>
+      <Breadcrumbs items={[{ label: 'Advertise' }]} class="mb-3" />
+      <h1 class="headline text-[2.8rem] font-black italic sm:text-[3.6rem]">Advertise with us</h1>
+      <div class="bg-gold-x mt-3 mb-6 h-1 w-24" aria-hidden="true"></div>
+      <p class="text-lg leading-relaxed">
+        Put your brand in front of an audience that lives on entertainment news, on the site and across social.
+        <span class="text-muted">[Draft placeholder: add audience numbers before launch.]</span>
+      </p>
+      <dl class="mt-8 grid gap-5 sm:grid-cols-2">
+        {
+          formats.map(([title, text]) => (
+            <div class="border-gold-500 border-l-4 pl-4">
+              <dt class="headline text-xl">{title}</dt>
+              <dd class="text-muted mt-1">{text}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+
+    <form method="post" action="/api/advertise" class="bg-paper border-line space-y-5 rounded-md border p-5 shadow-sm sm:p-7">
+      <div class="grid gap-5 sm:grid-cols-2">
+        <div>
+          <label for="ad-name" class={label}>Name <span class="text-gold-600">*</span></label>
+          <input id="ad-name" name="name" required autocomplete="name" class={field} />
+        </div>
+        <div>
+          <label for="ad-company" class={label}>Company</label>
+          <input id="ad-company" name="company" autocomplete="organization" class={field} />
+        </div>
+      </div>
+      <div>
+        <label for="ad-email" class={label}>Email <span class="text-gold-600">*</span></label>
+        <input id="ad-email" name="email" type="email" required autocomplete="email" class={field} />
+      </div>
+      <div>
+        <label for="ad-budget" class={label}>Budget</label>
+        <select id="ad-budget" name="budget" class={field}>
+          <option value="">Choose a range</option>
+          <option>Under $1,000</option>
+          <option>$1,000 – $5,000</option>
+          <option>$5,000 – $25,000</option>
+          <option>$25,000+</option>
+        </select>
+      </div>
+      <div>
+        <label for="ad-message" class={label}>Tell us about your campaign <span class="text-gold-600">*</span></label>
+        <textarea id="ad-message" name="message" required rows="5" maxlength="5000" class={field}></textarea>
+      </div>
+      <!-- Phase 3: Cloudflare Turnstile widget (spam protection) goes here. -->
+      <button type="submit" class="bg-gold headline w-full rounded-sm py-3.5 text-xl font-extrabold hover:brightness-105">Send enquiry</button>
+    </form>
+  </div>
+</BaseLayout>

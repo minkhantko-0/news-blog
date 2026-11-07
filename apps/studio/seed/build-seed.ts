@@ -1,27 +1,21 @@
 /**
- * Builds sample.ndjson for `sanity dataset import` from the web app's local
- * sample content (apps/web/src/lib/content/fixtures.ts), so the admin starts
- * with the same made-up stories the site shows offline.
+ * Builds sample.ndjson for `sanity dataset import` from ./sample-content.ts.
  *
- * Usage (from apps/studio):
- *   node seed/build-seed.ts > seed/sample.ndjson
- *   pnpm exec sanity dataset import seed/sample.ndjson production --replace
- *
- * Everything is fictional. Images are placeholder photos from picsum.photos;
- * video links are placeholders to replace with real YouTube links.
+ * Usage (from the repo root):
+ *   pnpm seed:build
+ *   pnpm seed:import   (replaces documents with the same IDs)
  */
-import { fixtureSource } from '../../web/src/lib/content/fixtures.ts';
+import * as sample from './sample-content.ts';
 
 type Doc = Record<string, unknown> & { _id: string; _type: string };
 
-const settings = await fixtureSource.getSiteSettings();
-const home = await fixtureSource.getHomepage();
+const HOUR = 60 * 60 * 1000;
+const hoursAgo = (h: number) => new Date(Date.now() - h * HOUR).toISOString();
 
 let keyCounter = 0;
 const key = () => `k${(++keyCounter).toString(36).padStart(6, '0')}`;
 const ref = (id: string) => ({ _type: 'reference', _ref: id });
 const keyedRef = (id: string) => ({ _key: key(), ...ref(id) });
-const lastSegment = (path: string) => path.split('/').filter(Boolean).pop() ?? '';
 const slug = (current: string) => ({ _type: 'slug', current });
 
 const image = (seed: string, alt: string) => ({
@@ -30,132 +24,156 @@ const image = (seed: string, alt: string) => ({
   alt,
   credit: 'Placeholder photo (Lorem Picsum)',
 });
-const seedOf = (img: { source: object }) => ('placeholder' in img.source ? String(img.source.placeholder) : 'hp');
 
-const block = (text: string) => ({
+const block = (text: string, style = 'normal') => ({
   _type: 'block',
   _key: key(),
-  style: 'normal',
+  style,
   markDefs: [],
   children: [{ _type: 'span', _key: key(), text, marks: [] }],
 });
 
+const id = {
+  category: (s: string) => `category-${s}`,
+  author: (s: string) => `author-${s}`,
+  tag: (s: string) => `tag-${s}`,
+  show: (s: string) => `show-${s}`,
+  video: (s: string) => `video-${s}`,
+  article: (s: string) => `article-${s}`,
+  page: (s: string) => `page-${s}`,
+};
+
 const docs: Doc[] = [];
 
-// ---------- Categories (from the menu) ----------
-const categoryId = (s: string) => `category-${s}`;
-settings.nav.forEach((item, i) => {
-  if (!item.href || item.comingSoon || item.href === '/videos/') return;
-  const parentSlug = lastSegment(item.href);
-  docs.push({ _id: categoryId(parentSlug), _type: 'category', title: item.label, slug: slug(parentSlug), order: i * 10 });
-  item.children.forEach((child, j) => {
-    const childSlug = lastSegment(child.href ?? '');
+// ---------- Categories ----------
+sample.sections.forEach((section, i) => {
+  docs.push({ _id: id.category(section.slug), _type: 'category', title: section.title, slug: slug(section.slug), order: i * 10 });
+  section.children.forEach(([title, s], j) =>
     docs.push({
-      _id: categoryId(childSlug),
+      _id: id.category(s),
       _type: 'category',
-      title: child.label,
-      slug: slug(childSlug),
-      parent: ref(categoryId(parentSlug)),
+      title,
+      slug: slug(s),
+      parent: ref(id.category(section.slug)),
       order: j * 10,
-    });
-  });
+    }),
+  );
 });
 
-// ---------- Authors ----------
-const authors = [
-  { _id: 'author-jordan-reyes', name: 'Jordan Reyes', role: 'Senior Entertainment Reporter', bio: 'Jordan covers music, celebrity and pop culture for HollywoodPest. (Sample author.)' },
-  { _id: 'author-tasha-bell', name: 'Tasha Bell', role: 'Crime & Courts Reporter', bio: 'Tasha covers celebrity court cases and legal news for HollywoodPest. (Sample author.)' },
-];
-authors.forEach((a, i) =>
-  docs.push({ ...a, _type: 'author', slug: slug(lastSegment(a._id.replace('author-', '/'))), photo: image(`hp-author-${i}`, a.name) }),
+// ---------- Authors, tags, shows ----------
+sample.authors.forEach((a, i) =>
+  docs.push({ _id: id.author(a.slug), _type: 'author', ...a, slug: slug(a.slug), photo: image(`hp-author-${i}`, a.name) }),
 );
-
-// ---------- Videos ----------
-const videoIds = home.videos.map((v, i) => {
-  const id = `video-${lastSegment(v.href)}`;
+sample.tags.forEach(([title, s]) => docs.push({ _id: id.tag(s), _type: 'tag', title, slug: slug(s) }));
+sample.shows.forEach(([name, s, seed], i) =>
   docs.push({
-    _id: id,
-    _type: 'video',
-    title: v.title,
-    slug: slug(lastSegment(v.href)),
-    // Placeholder link: replace with the real YouTube upload.
-    youtubeUrl: `https://www.youtube.com/watch?v=sample0000${i}`,
-    duration: v.duration,
-    thumbnail: image(seedOf(v.image), v.title),
-    publishAt: v.publishedAt,
-  });
-  return id;
-});
-
-// ---------- Original shows ----------
-home.shows.forEach((s, i) =>
-  docs.push({
-    _id: `show-${lastSegment(s.href)}`,
+    _id: id.show(s),
     _type: 'show',
-    name: s.name,
-    slug: slug(lastSegment(s.href)),
-    cardImage: image(seedOf(s.image), `${s.name} show artwork`),
+    name,
+    slug: slug(s),
+    cardImage: image(seed, `${name} show artwork`),
+    description: `${name} is a HollywoodPest Original. (Sample show description.)`,
     order: i * 10,
   }),
 );
 
-// ---------- Articles ----------
-const stories = [home.lead, ...home.secondary, ...home.trending, ...home.latest];
-const articleId = (href: string) => `article-${lastSegment(href)}`;
-let videoCursor = 0;
-for (const [i, s] of stories.entries()) {
+// ---------- Videos ----------
+sample.videos.forEach((v, i) =>
   docs.push({
-    _id: articleId(s.href),
+    _id: id.video(v.slug),
+    _type: 'video',
+    title: v.title,
+    slug: slug(v.slug),
+    // Placeholder link: replace with the real YouTube upload.
+    youtubeUrl: `https://www.youtube.com/watch?v=sample0000${i}`,
+    duration: v.duration,
+    thumbnail: image(v.seed, v.title),
+    description: 'Sample video for development. The link is a placeholder.',
+    show: ref(id.show(v.show)),
+    category: ref(id.category(v.category)),
+    publishAt: hoursAgo(v.hoursAgo),
+  }),
+);
+
+// ---------- Articles ----------
+const standardParagraphs = [
+  'This is a sample story for building and testing the site. The people and events in it are made up.',
+  'Real stories will have the full reporting here: what happened, who was involved, what they said, and what comes next.',
+];
+
+const extraBlock = (extra: sample.Extra) => {
+  if ('h2' in extra) return block(extra.h2, 'h2');
+  if ('p' in extra) return block(extra.p);
+  if ('quote' in extra) return { _type: 'pullQuote', _key: key(), quote: extra.quote, attribution: extra.by };
+  if ('embed' in extra) return { _type: 'socialEmbed', _key: key(), url: extra.embed };
+  return { _type: 'relatedArticle', _key: key(), article: ref(id.article(extra.related)) };
+};
+
+for (const a of sample.articles) {
+  docs.push({
+    _id: id.article(a.slug),
     _type: 'article',
-    title: s.title,
-    slug: slug(lastSegment(s.href)),
-    dek: s.dek ?? `${s.title}. Here's what we know so far.`,
-    ...(s.label ? { label: s.label } : {}),
-    category: ref(categoryId(lastSegment(s.category.href))),
-    heroImage: image(seedOf(s.image), s.title),
-    ...(s.hasVideo ? { video: ref(videoIds[videoCursor++ % videoIds.length]) } : {}),
-    body: [
-      block('This is a sample story for building and testing the site. The people and events in it are made up.'),
-      block('Real stories will have the full reporting here: what happened, who was involved, what they said, and what comes next.'),
-      block('Editors can add photos, social posts, pull quotes, galleries and links to related stories in this area.'),
-    ],
-    authors: [keyedRef(authors[i % authors.length]._id)],
-    publishAt: s.publishedAt,
+    title: a.title,
+    slug: slug(a.slug),
+    dek: a.dek,
+    ...(a.label ? { label: a.label } : {}),
+    category: ref(id.category(a.category)),
+    heroImage: image(a.seed, a.title),
+    ...(a.video ? { video: ref(id.video(a.video)) } : {}),
+    body: [...standardParagraphs.map((p) => block(p)), ...(a.body ?? []).map(extraBlock)],
+    authors: [keyedRef(id.author(a.author))],
+    tags: (a.tags ?? []).map((t) => keyedRef(id.tag(t))),
+    publishAt: hoursAgo(a.hoursAgo),
+    ...(a.updatedHoursAgo !== undefined ? { updatedAt: hoursAgo(a.updatedHoursAgo) } : {}),
+    ...(a.correction ? { correction: a.correction } : {}),
   });
 }
+
+// ---------- Pages ----------
+sample.pages.forEach((p) =>
+  docs.push({ _id: id.page(p.slug), _type: 'page', title: p.title, slug: slug(p.slug), body: p.paragraphs.map((t) => block(t)) }),
+);
 
 // ---------- Singletons ----------
 docs.push({
   _id: 'homepage',
   _type: 'homepage',
-  lead: ref(articleId(home.lead.href)),
-  secondary: home.secondary.map((s) => keyedRef(articleId(s.href))),
-  trending: home.trending.map((s) => keyedRef(articleId(s.href))),
+  lead: ref(id.article(sample.homepage.lead)),
+  secondary: sample.homepage.secondary.map((s) => keyedRef(id.article(s))),
+  trending: sample.homepage.trending.map((s) => keyedRef(id.article(s))),
 });
 
-const navLink = (item: (typeof settings.nav)[number]) => {
+const menuItem = (item: (typeof sample.menu)[number]) => {
   const base = { _key: key(), label: item.label };
-  if (item.comingSoon) return { ...base, kind: 'comingSoon' };
-  if (item.href === '/videos/') return { ...base, kind: 'url', url: '/videos/' };
-  return { ...base, kind: 'category', category: ref(categoryId(lastSegment(item.href ?? ''))) };
+  if ('comingSoon' in item) return { ...base, kind: 'comingSoon' };
+  if ('url' in item) return { ...base, kind: 'url', url: item.url };
+  return { ...base, kind: 'category', category: ref(id.category(item.section)) };
 };
 
 docs.push({
   _id: 'siteSettings',
   _type: 'siteSettings',
-  name: settings.name,
-  tagline: settings.tagline,
-  nav: settings.nav.map((item) => ({
-    _type: 'navItem',
-    ...navLink(item),
-    children: item.children.map((c) => ({ _type: 'navLink', ...navLink(c) })),
-  })),
+  ...sample.site,
+  nav: sample.menu.map((item) => {
+    const section = 'section' in item ? sample.sections.find((s) => s.slug === item.section) : undefined;
+    return {
+      _type: 'navItem',
+      ...menuItem(item),
+      children: (section?.children ?? []).map(([title, s]) => ({
+        _type: 'navLink',
+        _key: key(),
+        label: title,
+        kind: 'category',
+        category: ref(id.category(s)),
+      })),
+    };
+  }),
   // Placeholder profile links: replace with the real accounts.
   social: (['instagram', 'tiktok', 'facebook', 'youtube', 'x'] as const).map((platform) => ({
     _key: key(),
     _type: 'socialLink',
     platform,
-    url: `https://www.${platform === 'x' ? 'x' : platform}.com/`,
+    url: `https://www.${platform}.com/`,
   })),
 });
 

@@ -1,0 +1,128 @@
+---
+/**
+ * Social post (Instagram, TikTok, X, YouTube, Facebook).
+ *
+ * Renders a lightweight card first. The platform's own embed (and its heavy
+ * script) loads only when the card scrolls near the screen, so embeds never
+ * slow down the first view of the page.
+ */
+import { youtubeId } from '~/lib/youtube';
+import Icon, { type IconName } from '../ui/Icon.astro';
+import YouTubePlayer from '../media/YouTubePlayer.astro';
+
+interface Props {
+  node: { url: string };
+}
+
+const { url } = Astro.props.node;
+
+const host = (() => {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '');
+  } catch {
+    return '';
+  }
+})();
+
+const platform: { name: string; icon: IconName; kind: string } = host.endsWith('instagram.com')
+  ? { name: 'Instagram', icon: 'instagram', kind: 'instagram' }
+  : host.endsWith('tiktok.com')
+    ? { name: 'TikTok', icon: 'tiktok', kind: 'tiktok' }
+    : host === 'x.com' || host.endsWith('twitter.com')
+      ? { name: 'X', icon: 'x', kind: 'x' }
+      : host.endsWith('youtube.com') || host === 'youtu.be'
+        ? { name: 'YouTube', icon: 'youtube', kind: 'youtube' }
+        : { name: 'Facebook', icon: 'facebook', kind: 'link' };
+
+const ytId = platform.kind === 'youtube' ? youtubeId(url) : undefined;
+---
+
+{
+  ytId ? (
+    <div class="not-prose my-8">
+      <YouTubePlayer youtubeId={ytId} title="YouTube video" image={{ alt: 'YouTube video', source: { url: `https://i.ytimg.com/vi/${ytId}/hqdefault.jpg` } }} />
+    </div>
+  ) : (
+    <div class="not-prose my-8 flex justify-center" data-embed={platform.kind} data-embed-url={url}>
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener"
+        class="border-line hover:border-gold-500 flex min-h-40 w-full max-w-[540px] flex-col items-center justify-center gap-3 rounded-md border bg-neutral-50 p-6 text-center transition"
+      >
+        <Icon name={platform.icon} class="size-9" />
+        <span class="font-display text-lg font-bold uppercase">View this post on {platform.name}</span>
+        <span class="text-muted max-w-full truncate text-xs">{host}</span>
+      </a>
+    </div>
+  )
+}
+
+<script>
+  type Loader = { src: string; markup: (url: string) => string; process?: (el: HTMLElement) => void };
+
+  const loaders: Record<string, Loader> = {
+    instagram: {
+      src: 'https://www.instagram.com/embed.js',
+      markup: (url) => `<blockquote class="instagram-media" data-instgrm-permalink="${url}" data-instgrm-version="14" style="max-width:540px;width:100%;margin:0 auto"></blockquote>`,
+      process: () => (window as unknown as { instgrm?: { Embeds: { process(): void } } }).instgrm?.Embeds.process(),
+    },
+    tiktok: {
+      src: 'https://www.tiktok.com/embed.js',
+      markup: (url) => {
+        const id = url.match(/video\/(\d+)/)?.[1] ?? '';
+        return `<blockquote class="tiktok-embed" cite="${url}" data-video-id="${id}" style="max-width:605px;min-width:325px"><section></section></blockquote>`;
+      },
+    },
+    x: {
+      src: 'https://platform.twitter.com/widgets.js',
+      markup: (url) => `<blockquote class="twitter-tweet" data-dnt="true"><a href="${url}"></a></blockquote>`,
+      process: (el) => (window as unknown as { twttr?: { widgets: { load(e: HTMLElement): void } } }).twttr?.widgets.load(el),
+    },
+  };
+
+  const loadedScripts = new Map<string, Promise<void>>();
+  const loadScript = (src: string) => {
+    if (!loadedScripts.has(src)) {
+      loadedScripts.set(
+        src,
+        new Promise((resolve, reject) => {
+          const s = document.createElement('script');
+          s.src = src;
+          s.async = true;
+          s.onload = () => resolve();
+          s.onerror = () => reject(new Error(`Failed to load ${src}`));
+          document.body.append(s);
+        }),
+      );
+    }
+    return loadedScripts.get(src)!;
+  };
+
+  const embed = async (el: HTMLElement) => {
+    const loader = loaders[el.dataset.embed ?? ''];
+    const url = el.dataset.embedUrl;
+    if (!loader || !url) return; // unsupported platforms keep the link card
+    const card = el.innerHTML;
+    el.innerHTML = loader.markup(url.replace(/"/g, '&quot;'));
+    try {
+      const firstLoad = !loadedScripts.has(loader.src);
+      await loadScript(loader.src);
+      if (!firstLoad) loader.process?.(el); // the script processes the page itself on first load
+    } catch {
+      el.innerHTML = card; // blocked or offline: keep the link card
+    }
+  };
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        observer.unobserve(entry.target);
+        embed(entry.target as HTMLElement);
+      }
+    },
+    { rootMargin: '400px 0px' },
+  );
+  document.querySelectorAll<HTMLElement>('[data-embed]').forEach((el) => observer.observe(el));
+</script>

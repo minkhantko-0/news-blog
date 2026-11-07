@@ -1,0 +1,27 @@
+---
+/** "Related" story link inside an article body. */
+import type { StorySummary } from '~/lib/content';
+import Img from '../ui/Img.astro';
+
+interface Props {
+  node: { story?: StorySummary };
+}
+
+const { story } = Astro.props.node;
+---
+
+{
+  story && (
+    <aside class="not-prose border-line text-ink my-8 border-y py-4" data-pagefind-ignore>
+      <a href={story.href} class="group flex items-center gap-4">
+        <div class="aspect-[4/3] w-28 shrink-0 overflow-hidden sm:w-36">
+          <Img image={story.image} aspect={[4, 3]} sizes="144px" maxWidth={400} />
+        </div>
+        <div class="min-w-0">
+          <p class="text-gold-600 font-display text-sm font-extrabold tracking-wide uppercase">Related</p>
+          <p class="headline group-hover:text-gold-600 mt-1 text-[1.15rem] sm:text-[1.3rem]">{story.title}</p>
+        </div>
+      </a>
+    </aside>
+  )
+}

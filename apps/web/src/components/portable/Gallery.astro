@@ -1,0 +1,21 @@
+---
+import type { MediaImage } from '~/lib/content';
+import Img from '../ui/Img.astro';
+
+interface Props {
+  node: { images: MediaImage[] };
+}
+
+const { images } = Astro.props.node;
+---
+
+<div class="not-prose my-8 grid grid-cols-2 gap-2 sm:gap-3">
+  {
+    images.map((image, i) => (
+      <figure class:list={[images.length % 2 === 1 && i === 0 && 'col-span-2']}>
+        <Img image={image} aspect={[4, 3]} sizes="(min-width: 1024px) 380px, 50vw" maxWidth={1200} />
+        {image.caption && <figcaption class="text-muted mt-1 text-xs">{image.caption}</figcaption>}
+      </figure>
+    ))
+  }
+</div>

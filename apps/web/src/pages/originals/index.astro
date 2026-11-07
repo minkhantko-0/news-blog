@@ -1,0 +1,39 @@
+---
+import Breadcrumbs from '~/components/article/Breadcrumbs.astro';
+import Img from '~/components/ui/Img.astro';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { content } from '~/lib/content';
+
+const shows = await content.getShows();
+---
+
+<BaseLayout title="HollywoodPest Originals" description="Original shows from HollywoodPest.">
+  <div class="mx-auto max-w-[1440px] px-3 pt-4 sm:px-4 lg:px-6 lg:pt-6">
+    <Breadcrumbs items={[{ label: 'Originals' }]} class="mb-3" />
+    <h1 class="headline mb-8 text-[2.6rem] font-black italic sm:text-[3.4rem]">
+      Hollywood<span class="text-gold-gradient pr-1">Pest</span> Originals
+    </h1>
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        shows.map((show, i) => (
+          <a href={show.href} class="group block">
+            <div class="bg-night relative aspect-[16/10] overflow-hidden rounded-sm">
+              <Img
+                image={show.image}
+                aspect={[16, 10]}
+                sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw"
+                maxWidth={1200}
+                priority={i < 3}
+                class="brightness-[0.55] transition duration-500 group-hover:scale-105 group-hover:brightness-75"
+              />
+              <span class="headline absolute inset-0 flex items-center justify-center p-4 text-center text-[2.4rem] font-black italic text-white drop-shadow-[0_2px_6px_rgb(0_0_0/0.7)]">
+                {show.name}
+              </span>
+            </div>
+            {show.description && <p class="text-muted mt-2">{show.description}</p>}
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</BaseLayout>

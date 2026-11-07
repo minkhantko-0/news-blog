@@ -1,0 +1,78 @@
+---
+/**
+ * Listing page body (category, tag, author): header, stories, pagination.
+ * On page 1 the newest story is shown large.
+ */
+import type { StorySummary } from '~/lib/content';
+import type { PageSlice } from '~/lib/content/derive';
+import Breadcrumbs from '../article/Breadcrumbs.astro';
+import LeadStory from '../story/LeadStory.astro';
+import StoryCard from '../story/StoryCard.astro';
+import Pagination from './Pagination.astro';
+
+interface Props {
+  title: string;
+  /** Small label above the title, e.g. "Tag" or "Author". */
+  kicker?: string;
+  description?: string;
+  breadcrumbs?: { label: string; href?: string }[];
+  page: PageSlice<StorySummary>;
+  /** URL of page 1. */
+  base: string;
+  /** Sub-category links shown under the title. */
+  subLinks?: { label: string; href: string }[];
+}
+
+const { title, kicker, description, breadcrumbs = [], page, base, subLinks = [] } = Astro.props;
+const [first, ...rest] = page.items;
+const showLead = page.current === 1 && first;
+const grid = showLead ? rest : page.items;
+---
+
+<div class="mx-auto max-w-[1440px] px-3 pt-4 sm:px-4 lg:px-6 lg:pt-6">
+  <Breadcrumbs items={breadcrumbs} class="mb-3" />
+  <header class="mb-6 lg:mb-8">
+    {kicker && <p class="text-gold-600 font-display text-sm font-extrabold tracking-widest uppercase">{kicker}</p>}
+    <div class="flex items-center gap-4">
+      <h1 class="headline text-[2.6rem] font-black italic sm:text-[3.4rem]">
+        {title}
+        {page.current > 1 && <span class="text-muted text-[0.5em] not-italic"> · Page {page.current}</span>}
+      </h1>
+      <span class="bg-gold-x h-1 flex-1" aria-hidden="true"></span>
+    </div>
+    {description && <p class="text-muted mt-2 max-w-3xl text-lg">{description}</p>}
+    {
+      subLinks.length > 0 && (
+        <ul class="mt-4 flex flex-wrap gap-2">
+          {subLinks.map((l) => (
+            <li>
+              <a href={l.href} class="border-ink hover:bg-ink inline-block border-2 px-3 py-1 font-display text-sm font-extrabold uppercase hover:text-white">
+                {l.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </header>
+
+  {
+    page.items.length === 0 ? (
+      <p class="text-muted py-16 text-center text-lg">No stories here yet.</p>
+    ) : (
+      <>
+        {showLead && (
+          <div class="mb-8 lg:h-[460px]">
+            <LeadStory story={first} />
+          </div>
+        )}
+        <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {grid.map((story) => (
+            <StoryCard story={story} />
+          ))}
+        </div>
+        <Pagination current={page.current} total={page.total} base={base} />
+      </>
+    )
+  }
+</div>

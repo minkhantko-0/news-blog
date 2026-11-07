@@ -1,0 +1,14 @@
+---
+import CategoryView from '~/components/views/CategoryView.astro';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import type { Category } from '~/lib/content';
+import { categoryPagePaths } from '~/lib/routes';
+
+export const getStaticPaths = () => categoryPagePaths('top');
+
+const { category, pageNumber } = Astro.props as { category: Category; pageNumber: number };
+---
+
+<BaseLayout title={`${category.title} News, Page ${pageNumber}`} description={`More ${category.title} stories, page ${pageNumber}.`}>
+  <CategoryView category={category} pageNumber={pageNumber} />
+</BaseLayout>

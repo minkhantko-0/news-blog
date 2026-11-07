@@ -1,0 +1,43 @@
+---
+/** Renders article and page body text (Portable Text) with the site's styling. */
+import { PortableText } from 'astro-portabletext';
+import type { BodyNode } from '~/lib/content';
+import BodyImage from './BodyImage.astro';
+import Gallery from './Gallery.astro';
+import Link from './Link.astro';
+import PullQuote from './PullQuote.astro';
+import RelatedStory from './RelatedStory.astro';
+import SocialEmbed from './SocialEmbed.astro';
+
+interface Props {
+  value: BodyNode[];
+  class?: string;
+}
+
+const { value, class: className = '' } = Astro.props;
+
+const components = {
+  type: {
+    bodyImage: BodyImage,
+    gallery: Gallery,
+    pullQuote: PullQuote,
+    relatedArticle: RelatedStory,
+    socialEmbed: SocialEmbed,
+  },
+  mark: { link: Link },
+};
+---
+
+<div
+  class:list={[
+    'prose prose-lg max-w-none',
+    'prose-headings:font-display prose-headings:font-extrabold prose-headings:uppercase prose-headings:leading-none',
+    'prose-h2:text-[1.9rem] prose-h3:text-[1.5rem]',
+    'prose-p:text-[1.075rem] prose-p:leading-[1.75] prose-p:text-ink/90',
+    'prose-a:text-ink prose-a:decoration-gold-500 prose-a:decoration-2 prose-a:underline-offset-2 hover:prose-a:text-gold-700',
+    'prose-strong:text-ink',
+    className,
+  ]}
+>
+  <PortableText value={value} components={components} />
+</div>

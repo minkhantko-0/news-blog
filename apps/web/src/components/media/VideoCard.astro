@@ -1,0 +1,38 @@
+---
+import type { VideoSummary } from '~/lib/content';
+import Icon from '../ui/Icon.astro';
+import Img from '../ui/Img.astro';
+import TimeAgo from '../ui/TimeAgo.astro';
+
+interface Props {
+  video: VideoSummary;
+  showTime?: boolean;
+}
+
+const { video, showTime = true } = Astro.props;
+---
+
+<article class="group">
+  <a href={video.href} class="block">
+    <div class="bg-night relative aspect-video overflow-hidden rounded-sm">
+      <Img
+        image={video.image}
+        aspect={[16, 9]}
+        sizes="(min-width: 1280px) 330px, (min-width: 640px) 45vw, 100vw"
+        maxWidth={800}
+        class="transition duration-500 group-hover:scale-[1.03]"
+      />
+      {
+        video.duration && (
+          <span class="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-full bg-black/75 px-2 py-0.5 text-xs font-bold text-white">
+            <Icon name="play" class="size-3" />
+            <span class="sr-only">Duration</span>
+            {video.duration}
+          </span>
+        )
+      }
+    </div>
+    <h3 class="headline group-hover:text-gold-600 mt-2.5 line-clamp-3 text-[1.15rem] sm:text-[1.25rem]">{video.title}</h3>
+    {showTime && <TimeAgo iso={video.publishedAt} class="mt-1 block" />}
+  </a>
+</article>

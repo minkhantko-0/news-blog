@@ -6,7 +6,7 @@ import { TagIcon } from '@sanity/icons/Tag';
 import { TransferIcon } from '@sanity/icons/Transfer';
 import { UserIcon } from '@sanity/icons/User';
 import { VideoIcon } from '@sanity/icons/Video';
-import { slugOptions } from '../objects/shared';
+import { slugOptions, urlSlug } from '../objects/shared';
 
 const YOUTUBE = /(?:youtu\.be\/|[?&]v=|\/(?:shorts|embed|live)\/)([\w-]{11})/;
 
@@ -74,7 +74,7 @@ export const category = defineType({
   icon: FolderIcon,
   fields: [
     defineField({ name: 'title', type: 'string', validation: (rule) => rule.required() }),
-    defineField({ name: 'slug', title: 'URL', type: 'slug', options: slugOptions, validation: (rule) => rule.required() }),
+    defineField({ name: 'slug', title: 'URL', type: 'slug', options: slugOptions, validation: (rule) => rule.required().custom(urlSlug(['page', 'article'])) }),
     defineField({
       name: 'parent',
       title: 'Parent section',
@@ -153,7 +153,7 @@ export const page = defineType({
   icon: DocumentIcon,
   fields: [
     defineField({ name: 'title', type: 'string', validation: (rule) => rule.required() }),
-    defineField({ name: 'slug', title: 'URL', type: 'slug', options: slugOptions, validation: (rule) => rule.required() }),
+    defineField({ name: 'slug', title: 'URL', type: 'slug', options: slugOptions, validation: (rule) => rule.required().custom(urlSlug(['category'])) }),
     defineField({ name: 'body', type: 'pageBody' }),
     defineField({ name: 'seo', type: 'seo' }),
   ],

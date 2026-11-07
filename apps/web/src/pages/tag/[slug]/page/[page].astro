@@ -1,0 +1,19 @@
+---
+import TagView from '~/components/views/TagView.astro';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { content, type Tag } from '~/lib/content';
+import { extraPages, withTag } from '~/lib/content/derive';
+
+export async function getStaticPaths() {
+  const [tags, articles] = await Promise.all([content.getTags(), content.getArticles()]);
+  return tags.flatMap((tag) =>
+    extraPages(withTag(articles, tag.id).length).map((n) => ({ params: { slug: tag.slug, page: String(n) }, props: { tag, pageNumber: n } })),
+  );
+}
+
+const { tag, pageNumber } = Astro.props as { tag: Tag; pageNumber: number };
+---
+
+<BaseLayout title={`${tag.title}, Page ${pageNumber}`} description={`More ${tag.title} stories, page ${pageNumber}.`} noindex={tag.noindex}>
+  <TagView tag={tag} pageNumber={pageNumber} />
+</BaseLayout>

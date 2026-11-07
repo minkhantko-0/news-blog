@@ -1,0 +1,29 @@
+---
+import type { Author } from '~/lib/content';
+import Img from '../ui/Img.astro';
+import SocialLinks from '../ui/SocialLinks.astro';
+
+interface Props {
+  author: Author;
+}
+
+const { author } = Astro.props;
+---
+
+<section class="border-line flex gap-4 border-t pt-6" aria-label={`About ${author.name}`}>
+  {
+    author.photo && (
+      <a href={author.href} class="size-16 shrink-0 overflow-hidden rounded-full sm:size-20">
+        <Img image={author.photo} aspect={[1, 1]} sizes="80px" maxWidth={400} />
+      </a>
+    )
+  }
+  <div class="min-w-0">
+    <p class="headline text-xl">
+      <a href={author.href} class="hover:text-gold-600">{author.name}</a>
+    </p>
+    {author.role && <p class="text-muted text-sm font-semibold">{author.role}</p>}
+    <p class="text-ink/85 mt-2 text-[0.95rem] leading-relaxed">{author.bio}</p>
+    {author.social.length > 0 && <SocialLinks links={author.social} class="mt-3 gap-3" iconClass="size-5" />}
+  </div>
+</section>

@@ -1,0 +1,16 @@
+---
+import AuthorView from '~/components/views/AuthorView.astro';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { content, type Author } from '~/lib/content';
+
+export async function getStaticPaths() {
+  const authors = await content.getAuthors();
+  return authors.map((author) => ({ params: { slug: author.slug }, props: { author } }));
+}
+
+const { author } = Astro.props as { author: Author };
+---
+
+<BaseLayout title={`${author.name}${author.role ? `, ${author.role}` : ''}`} description={author.bio.slice(0, 160)}>
+  <AuthorView author={author} pageNumber={1} />
+</BaseLayout>

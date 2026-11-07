@@ -1,0 +1,56 @@
+---
+/**
+ * Lightweight YouTube player: shows the thumbnail and a play button, and only
+ * loads YouTube's player (about 1MB) when the reader clicks. Uses the
+ * privacy-enhanced youtube-nocookie.com domain.
+ */
+import type { MediaImage } from '~/lib/content';
+import Img from '../ui/Img.astro';
+import PlayBadge from '../ui/PlayBadge.astro';
+
+interface Props {
+  youtubeId?: string;
+  title: string;
+  image: MediaImage;
+  /** Load as the page's main image (above the fold). */
+  priority?: boolean;
+  sizes?: string;
+}
+
+const { youtubeId, title, image, priority = false, sizes = '(min-width: 1024px) 760px, 100vw' } = Astro.props;
+---
+
+<div class="bg-night relative aspect-video overflow-hidden" data-youtube={youtubeId}>
+  <Img image={image} aspect={[16, 9]} sizes={sizes} priority={priority} maxWidth={1600} />
+  {
+    youtubeId ? (
+      <button
+        type="button"
+        class="group absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/10"
+        aria-label={`Play video: ${title}`}
+        data-youtube-play
+      >
+        <PlayBadge size="lg" class="transition group-hover:scale-110" />
+      </button>
+    ) : (
+      <p class="absolute inset-x-0 bottom-0 bg-black/70 px-4 py-2 text-sm text-white">Video unavailable</p>
+    )
+  }
+</div>
+
+<script>
+  for (const button of document.querySelectorAll<HTMLButtonElement>('[data-youtube-play]')) {
+    button.addEventListener('click', () => {
+      const wrapper = button.closest<HTMLElement>('[data-youtube]');
+      const id = wrapper?.dataset.youtube;
+      if (!wrapper || !id) return;
+      const iframe = document.createElement('iframe');
+      iframe.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?autoplay=1&rel=0`;
+      iframe.title = button.getAttribute('aria-label')?.replace('Play video: ', '') ?? 'Video';
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      iframe.allowFullscreen = true;
+      iframe.className = 'absolute inset-0 size-full';
+      wrapper.replaceChildren(iframe);
+    });
+  }
+</script>

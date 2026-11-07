@@ -1,0 +1,29 @@
+---
+interface Props {
+  /** Trail after "Home". Items without `href` are the current page. */
+  items: { label: string; href?: string }[];
+  class?: string;
+}
+
+const { items, class: className = '' } = Astro.props;
+const trail = [{ label: 'Home', href: '/' }, ...items];
+---
+
+<nav aria-label="Breadcrumb" class={className} data-pagefind-ignore>
+  <ol class="text-muted flex flex-wrap items-center gap-x-2 font-display text-sm font-bold tracking-wide uppercase">
+    {
+      trail.map((item, i) => (
+        <li class="flex items-center gap-2">
+          {i > 0 && <span aria-hidden="true">›</span>}
+          {item.href ? (
+            <a href={item.href} class="hover:text-gold-600">
+              {item.label}
+            </a>
+          ) : (
+            <span aria-current="page">{item.label}</span>
+          )}
+        </li>
+      ))
+    }
+  </ol>
+</nav>

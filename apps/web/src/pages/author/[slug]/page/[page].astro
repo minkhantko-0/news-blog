@@ -1,0 +1,22 @@
+---
+import AuthorView from '~/components/views/AuthorView.astro';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { content, type Author } from '~/lib/content';
+import { byAuthor, extraPages } from '~/lib/content/derive';
+
+export async function getStaticPaths() {
+  const [authors, articles] = await Promise.all([content.getAuthors(), content.getArticles()]);
+  return authors.flatMap((author) =>
+    extraPages(byAuthor(articles, author.id).length).map((n) => ({
+      params: { slug: author.slug, page: String(n) },
+      props: { author, pageNumber: n },
+    })),
+  );
+}
+
+const { author, pageNumber } = Astro.props as { author: Author; pageNumber: number };
+---
+
+<BaseLayout title={`${author.name}, Page ${pageNumber}`} description={`Stories by ${author.name}, page ${pageNumber}.`}>
+  <AuthorView author={author} pageNumber={pageNumber} />
+</BaseLayout>

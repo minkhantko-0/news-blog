@@ -1,0 +1,73 @@
+---
+/**
+ * Site search, powered by Pagefind: the index is built with the site
+ * (`pagefind --site dist` after `astro build`) and searched in the browser,
+ * so there's no server and no cost. Only article pages are indexed.
+ * The index exists after a production build; `pnpm dev` shows a notice.
+ */
+import Breadcrumbs from '~/components/article/Breadcrumbs.astro';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Search" description="Search HollywoodPest stories." noindex>
+  <div class="mx-auto max-w-4xl px-4 pt-4 pb-10 lg:pt-6">
+    <Breadcrumbs items={[{ label: 'Search' }]} class="mb-3" />
+    <h1 class="headline mb-6 text-[2.6rem] font-black italic sm:text-[3.2rem]">Search</h1>
+    <div id="search" class="hp-search"></div>
+    <p id="search-unavailable" class="text-muted hidden py-10">
+      Search is available on the built site (<code>pnpm build && pnpm preview</code>).
+    </p>
+  </div>
+</BaseLayout>
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
+<script is:inline>
+  (function () {
+    const s = document.createElement('script');
+    s.src = '/pagefind/pagefind-ui.js';
+    s.onload = function () {
+      // eslint-disable-next-line no-undef
+      const ui = new PagefindUI({
+        element: '#search',
+        showSubResults: false,
+        showImages: true,
+        resetStyles: false,
+        translations: { placeholder: 'Search stories, people, shows…' },
+      });
+      const q = new URLSearchParams(location.search).get('q');
+      if (q) ui.triggerSearch(q);
+      document.querySelector('#search input')?.focus();
+    };
+    s.onerror = function () {
+      document.getElementById('search-unavailable').classList.remove('hidden');
+    };
+    document.head.append(s);
+  })();
+</script>
+
+<style is:global>
+  .hp-search {
+    --pagefind-ui-scale: 1;
+    --pagefind-ui-primary: #111111;
+    --pagefind-ui-text: #111111;
+    --pagefind-ui-background: #ffffff;
+    --pagefind-ui-border: #111111;
+    --pagefind-ui-tag: #f8e6a8;
+    --pagefind-ui-border-width: 2px;
+    --pagefind-ui-border-radius: 2px;
+    --pagefind-ui-font: var(--font-sans);
+  }
+  .hp-search .pagefind-ui__result-title {
+    font-family: var(--font-display);
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 1.25rem;
+    line-height: 1.05;
+  }
+  .hp-search .pagefind-ui__result-link:hover {
+    color: var(--color-gold-600);
+  }
+  .hp-search mark {
+    background: var(--color-gold-200);
+  }
+</style>

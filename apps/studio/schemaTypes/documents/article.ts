@@ -1,6 +1,6 @@
 import { defineArrayMember, defineField, defineType } from 'sanity';
 import { DocumentTextIcon } from '@sanity/icons/DocumentText';
-import { slugOptions } from '../objects/shared';
+import { slugOptions, urlSlug } from '../objects/shared';
 
 const LABELS = { breaking: 'Breaking', exclusive: 'Exclusive', developing: 'Developing' } as const;
 
@@ -32,7 +32,7 @@ export const article = defineType({
       group: 'story',
       options: slugOptions,
       description: 'Generated from the headline. Avoid changing it after publishing: the old link will break.',
-      validation: (rule) => rule.required(),
+      validation: (rule) => rule.required().custom(urlSlug(['category'])),
     }),
     defineField({
       name: 'dek',

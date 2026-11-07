@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@plugin '@tailwindcss/typography';
 
 /* ---------- Design tokens (from docs/design/homepage-desktop.jpg) ---------- */
 @theme inline {

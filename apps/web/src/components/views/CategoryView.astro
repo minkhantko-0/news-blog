@@ -1,0 +1,28 @@
+---
+import type { Category } from '~/lib/content';
+import { content } from '~/lib/content';
+import { inCategory, pageOf } from '~/lib/content/derive';
+import StoryListing from '../listing/StoryListing.astro';
+
+interface Props {
+  category: Category;
+  pageNumber: number;
+}
+
+const { category, pageNumber } = Astro.props;
+const [articles, categories] = await Promise.all([content.getArticles(), content.getCategories()]);
+const page = pageOf(inCategory(articles, category), pageNumber);
+const subLinks = categories.filter((c) => c.parent?.id === category.id).map((c) => ({ label: c.title, href: c.href }));
+const breadcrumbs = category.parent
+  ? [{ label: category.parent.title, href: category.parent.href }, { label: category.title }]
+  : [{ label: category.title }];
+---
+
+<StoryListing
+  title={category.title}
+  description={category.description}
+  breadcrumbs={breadcrumbs}
+  page={page}
+  base={category.href}
+  subLinks={subLinks}
+/>

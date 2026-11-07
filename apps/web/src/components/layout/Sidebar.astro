@@ -1,0 +1,27 @@
+---
+/** Right-hand column on article and video pages: Trending Now + Latest. */
+import { content } from '~/lib/content';
+import TrendingNow from '../home/TrendingNow.astro';
+import StoryRow from '../story/StoryRow.astro';
+import SectionHeading from '../ui/SectionHeading.astro';
+
+interface Props {
+  /** Story to leave out (the one being read). */
+  excludeId?: string;
+}
+
+const { excludeId } = Astro.props;
+const home = await content.getHomepage();
+const trending = home.trending.filter((s) => s.id !== excludeId).slice(0, 5);
+const latest = [home.lead, ...home.secondary, ...home.latest].filter((s) => s.id !== excludeId).slice(0, 5);
+---
+
+<aside class="space-y-10">
+  <TrendingNow stories={trending} />
+  <section aria-labelledby="sidebar-latest">
+    <SectionHeading id="sidebar-latest" title="Latest" as="h2" />
+    <div class="space-y-4">
+      {latest.map((story) => <StoryRow story={story} />)}
+    </div>
+  </section>
+</aside>

@@ -4,22 +4,27 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
-    "preview": "wrangler dev",
+    "build": "astro build && pagefind --site dist",
+    "preview": "astro preview",
     "check": "astro check",
-    "deploy": "astro build && wrangler deploy"
+    "deploy": "astro build && wrangler deploy",
+    "preview:worker": "wrangler dev"
   },
   "dependencies": {
+    "@portabletext/types": "^4.0.2",
     "@sanity/client": "^8.15.0",
     "@sanity/image-url": "^2.1.1",
-    "astro": "^7.4.7"
+    "astro": "^7.4.7",
+    "astro-portabletext": "^1.0.1"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
     "@emnapi/core": "^1.11.3",
     "@emnapi/runtime": "^1.11.3",
+    "@tailwindcss/typography": "^0.5.20",
     "@tailwindcss/vite": "^4.3.5",
     "@types/node": "^24.19.2",
+    "pagefind": "^1.6.0",
     "tailwindcss": "^4.3.5",
     "typescript": "^6.0.3",
     "wrangler": "^4.158.0"

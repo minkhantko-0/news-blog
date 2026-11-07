@@ -1,0 +1,17 @@
+{
+  "name": "scheduler",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --test-scheduled --port 8788",
+    "check": "tsc --noEmit",
+    "types": "wrangler types src/worker-configuration.d.ts"
+  },
+  "dependencies": {
+    "@sanity/client": "^8.15.0"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3",
+    "wrangler": "^4.158.0"
+  }
+}

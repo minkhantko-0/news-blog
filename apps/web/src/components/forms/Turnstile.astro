@@ -1,0 +1,16 @@
+---
+/**
+ * Cloudflare Turnstile ("I'm human" check, usually invisible). Free.
+ * Without PUBLIC_TURNSTILE_SITE_KEY, uses Cloudflare's always-pass test key,
+ * which is only acceptable in development.
+ */
+const TEST_SITE_KEY = '1x00000000000000000000AA';
+const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || TEST_SITE_KEY;
+
+if (import.meta.env.PROD && siteKey === TEST_SITE_KEY) {
+  console.warn('[turnstile] PUBLIC_TURNSTILE_SITE_KEY is not set: forms use the test key (no spam protection).');
+}
+---
+
+<div class="cf-turnstile min-h-[65px]" data-sitekey={siteKey} data-theme="light" data-size="flexible"></div>
+<script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>

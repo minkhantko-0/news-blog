@@ -1,13 +1,18 @@
 // @ts-check
 import { defineConfig, fontProviders } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
+import { loadEnv } from 'vite';
+import edgeFiles from './integrations/edge-files.mjs';
+
+const env = loadEnv(process.env.NODE_ENV ?? 'production', process.cwd(), '');
 
 export default defineConfig({
   // Replace with the real domain at launch (also used for canonical URLs and sitemaps).
-  site: process.env.PUBLIC_SITE_URL ?? 'https://hollywoodpest.example',
+  site: env.PUBLIC_SITE_URL || 'https://hollywoodpest.example',
   output: 'static',
   trailingSlash: 'always',
   build: { format: 'directory' },
+  integrations: [edgeFiles({ projectId: env.PUBLIC_SANITY_PROJECT_ID, dataset: env.PUBLIC_SANITY_DATASET || 'production' })],
   prefetch: { prefetchAll: false, defaultStrategy: 'hover' },
   fonts: [
     {

@@ -1,0 +1,118 @@
+---
+/**
+ * News tip form. Posts to /api/tip (apps/web/worker/forms.ts), which stores
+ * tips privately in D1 + R2 (never in Sanity, whose free-plan data is publicly
+ * readable) and emails the editors.
+ */
+import Breadcrumbs from '~/components/article/Breadcrumbs.astro';
+import FormError from '~/components/forms/FormError.astro';
+import Turnstile from '~/components/forms/Turnstile.astro';
+import Icon from '~/components/ui/Icon.astro';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+
+const field = 'border-ink/25 focus:border-ink w-full rounded-sm border-2 bg-white px-3 py-2.5 outline-none';
+const label = 'font-display mb-1.5 block text-lg font-extrabold uppercase';
+---
+
+<BaseLayout title="Send Us a News Tip" description="Know something we should know? Send HollywoodPest a news tip. We protect our sources.">
+  <div class="mx-auto grid max-w-[1200px] gap-10 px-4 pt-4 pb-10 lg:grid-cols-[1fr_1.3fr] lg:pt-6">
+    <div>
+      <Breadcrumbs items={[{ label: 'News Tip' }]} class="mb-3" />
+      <h1 class="headline text-[2.8rem] font-black italic sm:text-[3.6rem]">Got a tip?</h1>
+      <div class="bg-gold-x mt-3 mb-6 h-1 w-24" aria-hidden="true"></div>
+      <p class="text-lg leading-relaxed">
+        Saw something? Heard something? Have photos or video? Send it to the HollywoodPest newsroom.
+      </p>
+      <ul class="mt-6 space-y-3">
+        <li class="flex gap-3"><Icon name="star" class="text-gold-500 mt-1 size-5 shrink-0" />Only our editors see tips.</li>
+        <li class="flex gap-3"><Icon name="star" class="text-gold-500 mt-1 size-5 shrink-0" />You can stay anonymous: contact details are optional.</li>
+        <li class="flex gap-3"><Icon name="star" class="text-gold-500 mt-1 size-5 shrink-0" />We don't record your IP address, and never publish your name without your permission.</li>
+      </ul>
+    </div>
+
+    <form
+      id="form"
+      method="post"
+      action="/api/tip"
+      enctype="multipart/form-data"
+      class="bg-paper border-line relative space-y-5 rounded-md border p-5 shadow-sm sm:p-7"
+      data-tip-form
+    >
+      <FormError />
+      <div>
+        <label for="tip" class={label}>What's the tip? <span class="text-gold-600">*</span></label>
+        <textarea id="tip" name="tip" required rows="7" maxlength="10000" class={field} placeholder="Who, what, where, when. The more detail, the better."></textarea>
+      </div>
+      <div>
+        <label for="files" class={label}>Photos or videos</label>
+        <input
+          id="files"
+          name="files"
+          type="file"
+          multiple
+          accept="image/*,video/*"
+          aria-describedby="files-help"
+          class="file:bg-gold file:font-display block w-full text-sm file:mr-3 file:cursor-pointer file:rounded-sm file:border-0 file:px-4 file:py-2 file:font-extrabold file:uppercase"
+        />
+        <p id="files-help" class="text-muted mt-1 text-sm">Up to 4 files, 50MB in total. For bigger videos, paste a link in your tip.</p>
+        <p id="files-error" class="mt-1 text-sm font-semibold text-red-700" hidden></p>
+      </div>
+      <div class="grid gap-5 sm:grid-cols-2">
+        <div>
+          <label for="name" class={label}>Your name</label>
+          <input id="name" name="name" type="text" maxlength="200" autocomplete="name" class={field} />
+        </div>
+        <div>
+          <label for="contact" class={label}>Email or phone</label>
+          <input id="contact" name="contact" type="text" maxlength="200" autocomplete="email" class={field} />
+        </div>
+      </div>
+      <label class="flex items-start gap-3">
+        <input type="checkbox" name="anonymous" value="yes" class="accent-gold-500 mt-1 size-5" />
+        <span>Keep me anonymous. Don't use my name in any story.</span>
+      </label>
+      <Turnstile />
+      <button type="submit" class="bg-gold headline w-full rounded-sm py-3.5 text-xl font-extrabold hover:brightness-105 disabled:opacity-60">
+        Send tip
+      </button>
+      <p class="text-muted text-xs">By sending a tip you confirm you have the right to share any files you upload.</p>
+    </form>
+  </div>
+</BaseLayout>
+
+<script>
+  // Check file limits before uploading, so nobody waits for a big upload to be rejected.
+  const MAX_FILES = 4;
+  const MAX_BYTES = 50 * 1024 * 1024;
+  const form = document.querySelector<HTMLFormElement>('[data-tip-form]');
+  const input = document.getElementById('files') as HTMLInputElement | null;
+  const error = document.getElementById('files-error');
+
+  const problem = () => {
+    const files = Array.from(input?.files ?? []);
+    if (files.length > MAX_FILES) return `Please choose up to ${MAX_FILES} files.`;
+    if (files.some((f) => !/^(image|video)\//.test(f.type))) return 'Only photos and videos can be attached.';
+    const total = files.reduce((sum, f) => sum + f.size, 0);
+    if (total > MAX_BYTES) return `These files are ${Math.ceil(total / 1024 / 1024)}MB. The limit is 50MB: paste a link for bigger videos.`;
+    return '';
+  };
+
+  const show = () => {
+    const message = problem();
+    if (error) {
+      error.textContent = message;
+      error.hidden = !message;
+    }
+    return !message;
+  };
+
+  input?.addEventListener('change', show);
+  form?.addEventListener('submit', (e) => {
+    if (!show()) {
+      e.preventDefault();
+      input?.focus();
+      return;
+    }
+    form.querySelector('button[type=submit]')?.setAttribute('disabled', '');
+  });
+</script>

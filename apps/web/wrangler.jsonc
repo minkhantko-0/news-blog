@@ -1,12 +1,32 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "news-blog",
+  "main": "./worker/index.ts",
   "compatibility_date": "2026-11-01",
+
   // Static HTML from `astro build`. Requests to these files are free and unlimited.
-  // Phase 3 adds a small Worker entry ("main") that only runs for /api/*.
+  // Only /api/* runs the Worker (forms), so page views never count against Worker limits.
   "assets": {
     "directory": "./dist",
+    "binding": "ASSETS",
     "html_handling": "auto-trailing-slash",
-    "not_found_handling": "404-page"
-  }
+    "not_found_handling": "404-page",
+    "run_worker_first": ["/api/*"]
+  },
+
+  // Private storage for the forms. Created at deploy time (see docs/DEPLOY.md);
+  // `wrangler dev` simulates both locally.
+  "d1_databases": [{ "binding": "DB", "database_name": "news-blog", "migrations_dir": "./migrations" }],
+  "r2_buckets": [{ "binding": "TIP_FILES", "bucket_name": "news-blog-tip-files" }],
+
+  // Email notifications need a domain with Cloudflare Email Routing. Until then
+  // the Worker only logs that a tip arrived. At launch, add:
+  //   "send_email": [{ "name": "SEND_EMAIL", "destination_address": "tips@<domain>" }]
+  // and set NOTIFY_FROM / NOTIFY_TO below.
+  "vars": {
+    "NOTIFY_FROM": "",
+    "NOTIFY_TO": ""
+  },
+
+  "observability": { "enabled": true }
 }

@@ -3,6 +3,7 @@ import { structureTool } from 'sanity/structure';
 import { visionTool } from '@sanity/vision';
 import { schemaTypes, SINGLETON_TYPES } from './schemaTypes';
 import { structure } from './structure';
+import { withRedirectOnUrlChange } from './actions/publishWithRedirect';
 
 const projectId = process.env.SANITY_STUDIO_PROJECT_ID;
 if (!projectId) {
@@ -25,10 +26,16 @@ export default defineConfig({
 
   document: {
     // Singletons can't be duplicated or deleted.
-    actions: (actions, { schemaType }) =>
-      SINGLETON_TYPES.has(schemaType)
-        ? actions.filter(({ action }) => action && ['publish', 'discardChanges', 'restore'].includes(action))
-        : actions,
+    actions: (actions, { schemaType }) => {
+      if (SINGLETON_TYPES.has(schemaType)) {
+        return actions.filter(({ action }) => action && ['publish', 'discardChanges', 'restore'].includes(action));
+      }
+      if (schemaType === 'article') {
+        // Publishing an article whose URL changed creates a redirect from the old URL.
+        return actions.map((action) => (action.action === 'publish' ? withRedirectOnUrlChange(action) : action));
+      }
+      return actions;
+    },
     newDocumentOptions: (items) => items.filter(({ templateId }) => !SINGLETON_TYPES.has(templateId)),
   },
 });

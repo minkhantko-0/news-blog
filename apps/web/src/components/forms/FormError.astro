@@ -1,0 +1,38 @@
+---
+/**
+ * Explains ?error=<code> after the form Worker sends the reader back
+ * (codes from worker/forms.ts). Also holds the bot trap field.
+ */
+const messages: Record<string, string> = {
+  captcha: "We couldn't confirm you're a person. Please try again.",
+  missing: 'Please fill in the required fields.',
+  toolarge: 'Your files are too big: the limit is 50MB in total. For bigger videos, paste a link in your message instead.',
+  toomany: 'You can attach up to 4 files.',
+  filetype: 'Only photos and videos can be attached.',
+  server: 'Something went wrong on our side. Please try again in a minute.',
+};
+---
+
+<p
+  id="form-error"
+  role="alert"
+  hidden
+  class="border-l-4 border-red-600 bg-red-50 px-4 py-3 font-semibold text-red-800"
+  data-messages={JSON.stringify(messages)}
+>
+</p>
+
+<!-- Bot trap: hidden from people, often filled in by spam bots. -->
+<div class="absolute -left-[9999px]" aria-hidden="true">
+  <label>Website <input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+</div>
+
+<script>
+  const box = document.getElementById('form-error');
+  const code = new URLSearchParams(location.search).get('error');
+  if (box && code) {
+    const messages = JSON.parse(box.dataset.messages ?? '{}') as Record<string, string>;
+    box.textContent = messages[code] ?? messages.server ?? 'Something went wrong.';
+    box.hidden = false;
+  }
+</script>

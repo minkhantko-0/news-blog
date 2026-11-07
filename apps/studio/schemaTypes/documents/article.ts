@@ -106,8 +106,27 @@ export const article = defineType({
       title: 'Publish time',
       type: 'datetime',
       group: 'publishing',
+      description: 'Leave empty to use the time you press Publish. To schedule a story, set a future time and tick "Publish automatically" below.',
+      validation: (rule) =>
+        rule
+          .custom((value, ctx) => {
+            const scheduled = (ctx.document as { scheduled?: boolean } | undefined)?.scheduled;
+            if (scheduled && !value) return 'Set a publish time, or untick "Publish automatically".';
+            if (value && new Date(value).getTime() > Date.now() && !scheduled) {
+              return 'This time is in the future. To schedule, tick "Publish automatically" and don\'t press Publish: published stories can be read through the API before their time.';
+            }
+            return true;
+          })
+          .warning(),
+    }),
+    defineField({
+      name: 'scheduled',
+      title: 'Publish automatically',
+      type: 'boolean',
+      group: 'publishing',
+      initialValue: false,
       description:
-        'Leave empty to use the time you press Publish. To schedule: set a future time and keep the story as a draft (don\'t press Publish). It goes live automatically within 5 minutes of that time.',
+        'Tick this and keep the story as a draft (don\'t press Publish). It goes live by itself within 5 minutes of the publish time. Until then nobody outside the newsroom can see it.',
     }),
     defineField({
       name: 'updatedAt',

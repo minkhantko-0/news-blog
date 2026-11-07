@@ -123,9 +123,9 @@ Breakpoints: phone first. Tablet (768px and up) shows a 2-column hero. Desktop (
 ## 5. Publishing workflow
 
 - **Publish:** the editor clicks Publish, Sanity's webhook calls the deploy hook, and the site rebuilds and goes live in about 1–3 minutes. If several edits arrive close together, Cloudflare runs one rebuild instead of several.
-- **Scheduled posts:** the story stays a **draft** with a `publishAt` time. Drafts are private on Sanity's free plan, so embargoed scoops can't leak through the API. Every 5 minutes the cron worker publishes any draft that is due, which triggers a rebuild.
+- **Scheduled posts:** the story stays a **draft** with a `publishAt` time and *Publish automatically* ticked. Drafts are private on Sanity's free plan, so embargoed scoops can't leak through the API. Every 5 minutes the cron worker publishes any draft that is due, which triggers a rebuild.
 - **Slug change:** a redirect is created automatically, so old links and search ranking keep working.
-- **Takedown:** unpublish, rebuild, and the page returns 410 Gone.
+- **Takedown:** unpublish, rebuild, and the page returns 404. Static hosting can't send 410, and search engines drop both.
 - **Backups:** a full export of the Sanity content every night, kept in R2. This matters because the free plan keeps only 3 days of history.
 
 ## 6. Performance rules

@@ -1,0 +1,5 @@
+# Local secrets for `wrangler dev`. Copy to .dev.vars.
+# Cloudflare's Turnstile test secret: every check passes.
+TURNSTILE_SECRET=1x0000000000000000000000000000000AA
+# Any long random string. Signs the private links to tip files.
+LINK_SECRET=change-me-to-a-long-random-string

@@ -1,6 +1,8 @@
 ---
-/** Advertise enquiry page. Submissions go to /api/advertise (phase 3). */
+/** Advertise enquiry page. Posts to /api/advertise (apps/web/worker/forms.ts). */
 import Breadcrumbs from '~/components/article/Breadcrumbs.astro';
+import FormError from '~/components/forms/FormError.astro';
+import Turnstile from '~/components/forms/Turnstile.astro';
 import BaseLayout from '~/layouts/BaseLayout.astro';
 
 const field = 'border-ink/25 focus:border-ink w-full rounded-sm border-2 bg-white px-3 py-2.5 outline-none';
@@ -36,20 +38,21 @@ const formats = [
       </dl>
     </div>
 
-    <form method="post" action="/api/advertise" class="bg-paper border-line space-y-5 rounded-md border p-5 shadow-sm sm:p-7">
+    <form id="form" method="post" action="/api/advertise" class="bg-paper border-line relative space-y-5 rounded-md border p-5 shadow-sm sm:p-7">
+      <FormError />
       <div class="grid gap-5 sm:grid-cols-2">
         <div>
           <label for="ad-name" class={label}>Name <span class="text-gold-600">*</span></label>
-          <input id="ad-name" name="name" required autocomplete="name" class={field} />
+          <input id="ad-name" name="name" required maxlength="200" autocomplete="name" class={field} />
         </div>
         <div>
           <label for="ad-company" class={label}>Company</label>
-          <input id="ad-company" name="company" autocomplete="organization" class={field} />
+          <input id="ad-company" name="company" maxlength="200" autocomplete="organization" class={field} />
         </div>
       </div>
       <div>
         <label for="ad-email" class={label}>Email <span class="text-gold-600">*</span></label>
-        <input id="ad-email" name="email" type="email" required autocomplete="email" class={field} />
+        <input id="ad-email" name="email" type="email" required maxlength="200" autocomplete="email" class={field} />
       </div>
       <div>
         <label for="ad-budget" class={label}>Budget</label>
@@ -65,7 +68,7 @@ const formats = [
         <label for="ad-message" class={label}>Tell us about your campaign <span class="text-gold-600">*</span></label>
         <textarea id="ad-message" name="message" required rows="5" maxlength="5000" class={field}></textarea>
       </div>
-      <!-- Phase 3: Cloudflare Turnstile widget (spam protection) goes here. -->
+      <Turnstile />
       <button type="submit" class="bg-gold headline w-full rounded-sm py-3.5 text-xl font-extrabold hover:brightness-105">Send enquiry</button>
     </form>
   </div>

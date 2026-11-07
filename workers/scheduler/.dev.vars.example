@@ -1,0 +1,4 @@
+# Copy to .dev.vars. Create the token at sanity.io/manage → your project → API → Tokens (Editor role).
+SANITY_WRITE_TOKEN=
+# Optional locally.
+DEPLOY_HOOK_URL=

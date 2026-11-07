@@ -1,5 +1,12 @@
 ---
-/** Featured video plus a list of smaller ones with durations. */
+/**
+ * Homepage videos: a featured video plus smaller ones with durations.
+ *
+ * - Phones: featured on top, then rows (thumbnail + title).
+ * - Tablets / small laptops (full width under Latest News): featured beside the rows.
+ * - 1280px+ (column beside Latest News): featured on top, the rest in a row of
+ *   small cards, so the column ends about level with Latest News.
+ */
 import type { VideoSummary } from '~/lib/content';
 import Icon from '../ui/Icon.astro';
 import Img from '../ui/Img.astro';
@@ -14,14 +21,14 @@ const [featured, ...rest] = Astro.props.videos;
 
 {
   featured && (
-    <div class="grid gap-4 sm:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:grid-cols-1 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
+    <div class="grid gap-4 sm:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] xl:grid-cols-1">
       <article class="group bg-night relative overflow-hidden rounded-sm">
         <a href={featured.href} class="block">
-          <div class="aspect-[16/10]">
+          <div class="aspect-[16/10] xl:aspect-video">
             <Img
               image={featured.image}
-              aspect={[16, 10]}
-              sizes="(min-width: 1440px) 380px, (min-width: 1280px) 26vw, (min-width: 1024px) 42vw, (min-width: 640px) 60vw, 100vw"
+              aspect={[16, 9]}
+              sizes="(min-width: 1440px) 600px, (min-width: 1280px) 40vw, (min-width: 640px) 58vw, 100vw"
               maxWidth={1200}
               class="transition duration-500 group-hover:scale-[1.03]"
             />
@@ -29,20 +36,20 @@ const [featured, ...rest] = Astro.props.videos;
           <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" aria-hidden="true" />
           <PlayBadge size="lg" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[70%]" />
           <div class="absolute inset-x-0 bottom-0 p-4">
-            <h3 class="headline group-hover:text-gold-300 text-[1.3rem] text-white xl:text-[1.45rem]">{featured.title}</h3>
+            <h3 class="headline group-hover:text-gold-300 text-[1.3rem] text-white xl:text-[1.5rem]">{featured.title}</h3>
           </div>
         </a>
       </article>
 
-      <ul class="flex flex-col gap-4">
+      <ul class="flex flex-col gap-4 xl:grid xl:grid-cols-3">
         {rest.map((video) => (
           <li>
-            <a href={video.href} class="group flex gap-3">
-              <div class="bg-line relative aspect-[16/10] w-[42%] shrink-0 overflow-hidden rounded-sm">
+            <a href={video.href} class="group flex gap-3 xl:flex-col xl:gap-2">
+              <div class="bg-line relative aspect-[16/10] w-[42%] shrink-0 overflow-hidden rounded-sm xl:w-full">
                 <Img
                   image={video.image}
                   aspect={[16, 10]}
-                  sizes="(min-width: 1280px) 140px, (min-width: 1024px) 18vw, 40vw"
+                  sizes="(min-width: 1440px) 190px, (min-width: 1280px) 13vw, (min-width: 640px) 17vw, 40vw"
                   maxWidth={400}
                   class="transition duration-500 group-hover:scale-105"
                 />
@@ -52,7 +59,7 @@ const [featured, ...rest] = Astro.props.videos;
                   {video.duration}
                 </span>
               </div>
-              <h3 class="headline group-hover:text-gold-600 line-clamp-4 text-[1rem] xl:text-[1.05rem]">{video.title}</h3>
+              <h3 class="headline group-hover:text-gold-600 line-clamp-3 text-[1rem] xl:text-[1.05rem]">{video.title}</h3>
             </a>
           </li>
         ))}

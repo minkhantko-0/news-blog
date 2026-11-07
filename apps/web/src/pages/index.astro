@@ -47,17 +47,17 @@ const container = 'mx-auto max-w-[1440px] px-3 sm:px-4 lg:px-6';
   }
 
   <!-- Latest + Videos -->
-  <div class:list={[container, 'mt-8 grid gap-10 lg:mt-10 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] lg:gap-8']}>
+  <div class:list={[container, 'mt-8 grid gap-10 lg:mt-10 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] xl:gap-8']}>
     <section aria-labelledby="latest-title">
       <SectionHeading id="latest-title" title="Latest News" />
-      <div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+      <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {home.latest.map((story) => <StoryCard story={story} />)}
       </div>
     </section>
 
     {
       home.videos.length > 0 && (
-        <section aria-labelledby="videos-title" class="lg:border-line lg:border-l lg:pl-8">
+        <section aria-labelledby="videos-title" class="xl:border-line xl:border-l xl:pl-8">
           <SectionHeading id="videos-title" title="Videos" playIcon link={{ label: 'View all', href: '/videos/' }} />
           <VideoList videos={home.videos} />
         </section>

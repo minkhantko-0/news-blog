@@ -1,0 +1,36 @@
+---
+/** Italic section title with a gold rule filling the rest of the row. */
+import Icon from './Icon.astro';
+
+interface Props {
+  title: string;
+  /** Adds a gold play icon before the title (video sections). */
+  playIcon?: boolean;
+  link?: { label: string; href: string };
+  as?: 'h2' | 'h3';
+  /** id for aria-labelledby on the surrounding section. */
+  id?: string;
+  class?: string;
+}
+
+const { title, playIcon = false, link, as: Tag = 'h2', id, class: className = '' } = Astro.props;
+---
+
+<div class:list={['mb-4 flex items-center gap-3', className]}>
+  {
+    playIcon && (
+      <span class="bg-gold text-ink flex size-7 shrink-0 items-center justify-center rounded-full lg:size-8" aria-hidden="true">
+        <Icon name="play" class="ml-0.5 size-4" />
+      </span>
+    )
+  }
+  <Tag id={id} class="headline text-[1.75rem] font-black italic lg:text-[2.1rem]">{title}</Tag>
+  <span class="bg-gold-x h-[3px] flex-1" aria-hidden="true"></span>
+  {
+    link && (
+      <a href={link.href} class="headline shrink-0 text-sm font-bold underline decoration-2 underline-offset-4 hover:text-gold-600">
+        {link.label}
+      </a>
+    )
+  }
+</div>

@@ -1,0 +1,29 @@
+---
+/**
+ * Gold tag on story cards. Shows the editorial label (Breaking, Exclusive,
+ * Developing) when set, otherwise the category.
+ */
+import type { StorySummary } from '~/lib/content';
+
+interface Props {
+  story: Pick<StorySummary, 'label' | 'category'>;
+  size?: 'sm' | 'lg';
+  class?: string;
+}
+
+const LABELS = { breaking: 'Breaking News', exclusive: 'Exclusive', developing: 'Developing' } as const;
+
+const { story, size = 'sm', class: className = '' } = Astro.props;
+const text = story.label ? LABELS[story.label] : story.category.title;
+---
+
+<span
+  class:list={[
+    'bg-gold text-ink inline-block font-display leading-none font-extrabold uppercase',
+    size === 'lg' ? 'px-2.5 py-1.5 text-base italic sm:text-xl lg:text-2xl' : 'px-1.5 py-1 text-[0.7rem] sm:text-xs',
+    story.label === 'breaking' && size === 'sm' && 'italic',
+    className,
+  ]}
+>
+  {text}
+</span>

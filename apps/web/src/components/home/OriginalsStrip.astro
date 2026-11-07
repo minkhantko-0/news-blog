@@ -1,0 +1,70 @@
+---
+/** "Watch HollywoodPest Originals": swipeable row of shows on a black band. */
+import type { Show } from '~/lib/content';
+import Icon from '../ui/Icon.astro';
+import Img from '../ui/Img.astro';
+
+interface Props {
+  shows: Show[];
+}
+
+const { shows } = Astro.props;
+
+/** "HP Couples Patrol" -> ["HP Couples", "Patrol"]: last word in gold. */
+const split = (name: string): [string, string] => {
+  const words = name.trim().split(/\s+/);
+  const last = words.pop() ?? '';
+  return [words.join(' '), last];
+};
+
+const arrow =
+  'absolute top-1/2 z-10 hidden size-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/25 lg:flex';
+---
+
+<section aria-labelledby="originals-title" class="bg-night rounded-md p-3 sm:p-4 lg:flex lg:items-center lg:gap-5">
+  <h2 id="originals-title" class="headline mb-3 shrink-0 italic font-black text-white lg:mb-0 lg:w-52 xl:w-60">
+    <a href="/originals/" class="group inline-flex flex-wrap items-baseline gap-x-2 leading-[0.9] lg:block">
+      <span class="text-[1.35rem] lg:block lg:text-[1.9rem]">Watch</span>
+      <span class="text-[1.35rem] lg:block lg:text-[1.9rem]">Hollywood<span class="text-gold-gradient pr-1">Pest</span></span>
+      <span class="text-gold-gradient inline-flex items-center gap-1 text-[1.35rem] lg:text-[2.5rem] xl:text-[2.7rem]">
+        Originals
+      </span>
+      <span class="bg-gold text-ink inline-flex size-5 items-center justify-center rounded-full align-middle lg:size-7" aria-hidden="true">
+        <Icon name="play" class="ml-0.5 size-3 lg:size-4" />
+      </span>
+    </a>
+  </h2>
+
+  <div class="relative min-w-0 flex-1" data-carousel>
+    <button type="button" class:list={[arrow, 'left-0']} data-carousel-prev aria-label="Previous shows">
+      <Icon name="chevron-left" class="size-6" />
+    </button>
+    <ul data-carousel-track class="scrollbar-none flex snap-x snap-mandatory gap-2.5 overflow-x-auto lg:mx-11">
+      {
+        shows.map((show) => {
+          const [first, last] = split(show.name);
+          return (
+            <li class="w-[44%] shrink-0 snap-start sm:w-[30%] lg:w-[calc((100%-4*0.625rem)/5)] xl:w-[calc((100%-5*0.625rem)/6)]">
+              <a href={show.href} class="group relative block aspect-[16/10] overflow-hidden rounded-sm">
+                <Img
+                  image={show.image}
+                  aspect={[16, 10]}
+                  sizes="(min-width: 1280px) 180px, (min-width: 1024px) 15vw, (min-width: 640px) 30vw, 44vw"
+                  maxWidth={800}
+                  class="brightness-[0.55] transition duration-500 group-hover:scale-105 group-hover:brightness-75"
+                />
+                <span class="headline absolute inset-0 flex flex-col items-center justify-center p-2 text-center text-[1.3rem] font-black italic leading-[0.88] text-white drop-shadow-[0_2px_6px_rgb(0_0_0/0.7)] lg:text-[1.1rem] xl:text-[1.4rem] 2xl:text-[1.75rem]">
+                  <span>{first}</span>
+                  <span class="text-gold-gradient pr-1">{last}</span>
+                </span>
+              </a>
+            </li>
+          );
+        })
+      }
+    </ul>
+    <button type="button" class:list={[arrow, 'right-0']} data-carousel-next aria-label="More shows">
+      <Icon name="chevron-right" class="size-6" />
+    </button>
+  </div>
+</section>

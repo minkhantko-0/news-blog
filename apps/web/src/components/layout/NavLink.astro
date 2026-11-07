@@ -1,0 +1,31 @@
+---
+/**
+ * One navigation link. Handles the three kinds of nav items:
+ * internal link, external link, and "coming soon" (opens the popup).
+ */
+import type { NavItem } from '~/lib/content';
+
+interface Props {
+  item: NavItem;
+  class?: string;
+  current?: boolean;
+}
+
+const { item, class: className = '', current = false } = Astro.props;
+---
+
+{
+  item.comingSoon ? (
+    <a href="/coming-soon/" rel="nofollow" data-coming-soon={item.label} class={className}>
+      <slot>{item.label}</slot>
+    </a>
+  ) : item.external ? (
+    <a href={item.href} target="_blank" rel="noopener" class={className}>
+      <slot>{item.label}</slot>
+    </a>
+  ) : (
+    <a href={item.href} class={className} aria-current={current ? 'page' : undefined}>
+      <slot>{item.label}</slot>
+    </a>
+  )
+}

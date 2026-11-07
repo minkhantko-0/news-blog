@@ -1,0 +1,12 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "news-blog",
+  "compatibility_date": "2026-11-01",
+  // Static HTML from `astro build`. Requests to these files are free and unlimited.
+  // Phase 3 adds a small Worker entry ("main") that only runs for /api/*.
+  "assets": {
+    "directory": "./dist",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  }
+}

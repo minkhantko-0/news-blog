@@ -1,0 +1,28 @@
+---
+/**
+ * "Coming soon" popup for nav items not launched yet (Shop, HP Publishing).
+ * Any link with [data-coming-soon="Name"] opens it. Without JavaScript those
+ * links fall back to the /coming-soon/ page.
+ */
+import Icon from '../ui/Icon.astro';
+---
+
+<dialog
+  id="coming-soon"
+  aria-labelledby="coming-soon-title"
+  class="bg-paper text-ink m-auto w-[min(92vw,440px)] overflow-hidden rounded-md p-0 text-center shadow-2xl"
+>
+  <div class="bg-gold-x h-1.5" aria-hidden="true"></div>
+  <div class="px-6 pt-8 pb-6">
+    <span class="bg-night text-gold-400 mx-auto mb-4 flex size-14 items-center justify-center rounded-full" aria-hidden="true">
+      <Icon name="star" class="size-7" />
+    </span>
+    <h2 id="coming-soon-title" class="headline text-[2rem] font-black italic">
+      <span data-coming-soon-name>This</span> is coming soon
+    </h2>
+    <p class="text-muted mt-3">We're putting the finishing touches on it. Follow HollywoodPest on social to be first to know when it launches.</p>
+    <form method="dialog" class="mt-6">
+      <button class="bg-gold headline w-full rounded-sm py-3 text-lg font-extrabold hover:brightness-105">Got it</button>
+    </form>
+  </div>
+</dialog>

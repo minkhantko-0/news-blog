@@ -1,0 +1,18 @@
+---
+/**
+ * Publish time. Pages are pre-built, so "2 hours ago" would go stale; the HTML
+ * carries the absolute date and a small script in BaseLayout rewrites it to a
+ * relative time in the reader's browser.
+ */
+interface Props {
+  iso: string;
+  class?: string;
+}
+
+const { iso, class: className = '' } = Astro.props;
+const absolute = new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+---
+
+<time datetime={iso} data-relative class:list={['text-muted text-xs font-medium tracking-wide uppercase', className]}>
+  {absolute}
+</time>

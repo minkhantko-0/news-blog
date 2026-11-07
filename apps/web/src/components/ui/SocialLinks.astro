@@ -1,0 +1,32 @@
+---
+import type { SocialLink } from '~/lib/content';
+import Icon from './Icon.astro';
+
+interface Props {
+  links: SocialLink[];
+  class?: string;
+  iconClass?: string;
+}
+
+const NAMES = { instagram: 'Instagram', tiktok: 'TikTok', facebook: 'Facebook', youtube: 'YouTube', x: 'X' } as const;
+
+const { links, class: className = '', iconClass = 'size-6 lg:size-7' } = Astro.props;
+---
+
+<ul class:list={['flex items-center gap-4 lg:gap-5', className]}>
+  {
+    links.map((link) => (
+      <li>
+        <a
+          href={link.url}
+          class="hover:text-gold-500 block transition-colors"
+          target="_blank"
+          rel="noopener me"
+          aria-label={`HollywoodPest on ${NAMES[link.platform]}`}
+        >
+          <Icon name={link.platform} class={iconClass} />
+        </a>
+      </li>
+    ))
+  }
+</ul>

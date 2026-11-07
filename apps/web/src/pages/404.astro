@@ -1,0 +1,23 @@
+---
+import StoryCard from '~/components/story/StoryCard.astro';
+import SectionHeading from '~/components/ui/SectionHeading.astro';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { content } from '~/lib/content';
+
+const { latest } = await content.getHomepage();
+---
+
+<BaseLayout title="Page Not Found" description="This page doesn't exist or has been removed." noindex>
+  <section class="mx-auto max-w-[1440px] px-4 py-14 lg:px-6">
+    <div class="mx-auto mb-14 max-w-xl text-center">
+      <p class="headline text-gold-gradient text-[5rem] font-black italic">404</p>
+      <h1 class="headline text-[2.2rem] font-black italic">This story got away</h1>
+      <p class="text-muted mt-3">The page you're looking for doesn't exist or has been removed.</p>
+      <a href="/" class="bg-gold headline mt-6 inline-block rounded-sm px-8 py-3 text-lg font-extrabold">Go to the homepage</a>
+    </div>
+    <SectionHeading title="Latest News" />
+    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+      {latest.map((story) => <StoryCard story={story} />)}
+    </div>
+  </section>
+</BaseLayout>

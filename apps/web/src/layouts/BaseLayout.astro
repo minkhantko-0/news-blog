@@ -1,0 +1,107 @@
+---
+import '~/styles/global.css';
+import { Font } from 'astro:assets';
+import ComingSoonDialog from '~/components/layout/ComingSoonDialog.astro';
+import Footer from '~/components/layout/Footer.astro';
+import Header from '~/components/layout/Header.astro';
+import MobileMenu from '~/components/layout/MobileMenu.astro';
+import { content } from '~/lib/content';
+
+interface Props {
+  title: string;
+  description: string;
+  noindex?: boolean;
+}
+
+const { title, description, noindex = false } = Astro.props;
+const settings = await content.getSiteSettings();
+const fullTitle = title.includes(settings.name) ? title : `${title} | ${settings.name}`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const imageOrigin = import.meta.env.PUBLIC_SANITY_PROJECT_ID ? 'https://cdn.sanity.io' : 'https://picsum.photos';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large'} />
+    <meta name="theme-color" content="#111111" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href={imageOrigin} crossorigin />
+    <Font
+      cssVariable="--font-barlow"
+      preload={[
+        { weight: '800', style: 'normal' },
+        { weight: '900', style: 'italic' },
+      ]}
+    />
+    <Font cssVariable="--font-inter" />
+    <slot name="head" />
+  </head>
+  <body>
+    <a
+      href="#main"
+      class="bg-gold text-ink sr-only z-50 px-4 py-2 font-bold focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
+    >
+      Skip to content
+    </a>
+    <Header settings={settings} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer settings={settings} />
+    <MobileMenu settings={settings} />
+    <ComingSoonDialog />
+
+    <script>
+      // Relative publish times ("2 hours ago"), computed in the reader's browser.
+      const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+      const units: [Intl.RelativeTimeFormatUnit, number][] = [
+        ['year', 31536000],
+        ['month', 2592000],
+        ['week', 604800],
+        ['day', 86400],
+        ['hour', 3600],
+        ['minute', 60],
+      ];
+      for (const el of document.querySelectorAll<HTMLTimeElement>('time[data-relative]')) {
+        const seconds = (new Date(el.dateTime).getTime() - Date.now()) / 1000;
+        if (Number.isNaN(seconds) || Math.abs(seconds) > 7 * 86400) continue; // older than a week: keep the date
+        const [unit, size] = units.find(([, s]) => Math.abs(seconds) >= s) ?? ['minute', 60];
+        el.textContent = rtf.format(Math.round(seconds / size), unit);
+      }
+
+      // Mobile menu
+      const menu = document.getElementById('site-menu') as HTMLDialogElement | null;
+      document.querySelectorAll('[data-open-menu]').forEach((b) => b.addEventListener('click', () => menu?.showModal()));
+      menu?.querySelector('[data-close-menu]')?.addEventListener('click', () => menu.close());
+      menu?.addEventListener('click', (e) => e.target === menu && menu.close()); // tap outside
+
+      // "Coming soon" popup
+      const soon = document.getElementById('coming-soon') as HTMLDialogElement | null;
+      const soonName = soon?.querySelector('[data-coming-soon-name]');
+      soon?.addEventListener('click', (e) => e.target === soon && soon.close());
+      document.addEventListener('click', (e) => {
+        const link = (e.target as Element).closest<HTMLElement>('[data-coming-soon]');
+        if (!link || !soon || !soonName) return;
+        e.preventDefault();
+        menu?.close();
+        soonName.textContent = link.dataset.comingSoon ?? 'This';
+        soon.showModal();
+      });
+
+      // Carousels: arrow buttons scroll the track
+      for (const root of document.querySelectorAll<HTMLElement>('[data-carousel]')) {
+        const track = root.querySelector<HTMLElement>('[data-carousel-track]');
+        if (!track) continue;
+        const step = () => track.clientWidth * 0.8;
+        root.querySelector('[data-carousel-prev]')?.addEventListener('click', () => track.scrollBy({ left: -step(), behavior: 'smooth' }));
+        root.querySelector('[data-carousel-next]')?.addEventListener('click', () => track.scrollBy({ left: step(), behavior: 'smooth' }));
+      }
+    </script>
+  </body>
+</html>

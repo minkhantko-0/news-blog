@@ -1,0 +1,129 @@
+---
+/**
+ * Site header.
+ * - Phone/tablet: sticky bar (menu button, logo, search) + swipeable section strip.
+ * - Desktop: socials | logo | News Tip + Advertise + search, then a sticky main nav with dropdowns.
+ */
+import type { NavItem, SiteSettings } from '~/lib/content';
+import Icon from '../ui/Icon.astro';
+import Logo from '../ui/Logo.astro';
+import SocialLinks from '../ui/SocialLinks.astro';
+import NavLink from './NavLink.astro';
+
+interface Props {
+  settings: SiteSettings;
+}
+
+const { settings } = Astro.props;
+const path = Astro.url.pathname;
+const isCurrent = (item: NavItem) => Boolean(item.href && item.href !== '/' && path.startsWith(item.href));
+---
+
+<div class="border-line bg-paper sticky top-0 z-40 border-b lg:static lg:border-b-0">
+  <div
+    class="mx-auto flex max-w-[1440px] items-center justify-between gap-3 px-3 py-2 sm:px-4 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:px-6 lg:py-4"
+  >
+    <div class="flex items-center">
+      <button
+        type="button"
+        class="-ml-2 p-2 lg:hidden"
+        data-open-menu
+        aria-controls="site-menu"
+        aria-haspopup="dialog"
+        aria-label="Open menu"
+      >
+        <Icon name="menu" class="size-7" />
+      </button>
+      <SocialLinks links={settings.social} class="hidden lg:flex" />
+    </div>
+
+    <Logo tagline={settings.tagline} />
+
+    <div class="flex items-center justify-end gap-3 xl:gap-6">
+      <a
+        href="/news-tip/"
+        class="headline hover:text-gold-600 hidden items-center gap-2 text-lg font-bold whitespace-nowrap lg:inline-flex"
+      >
+        <Icon name="mail" class="size-6" />
+        News Tip
+      </a>
+      <a
+        href="/advertise/"
+        class="bg-gold headline hidden rounded-sm px-4 py-3 text-base font-extrabold whitespace-nowrap shadow-sm hover:brightness-105 lg:inline-block xl:px-6 xl:text-lg"
+      >
+        Advertise<span class="hidden xl:inline"> With Us</span>
+      </a>
+      <a href="/search/" class="-mr-2 p-2" aria-label="Search">
+        <Icon name="search" class="size-7" />
+      </a>
+    </div>
+  </div>
+
+  <!-- Phone/tablet: swipeable sections -->
+  <nav aria-label="Sections" class="border-line border-t lg:hidden">
+    <ul class="scrollbar-none flex gap-5 overflow-x-auto px-3 sm:px-4">
+      {
+        settings.nav.map((item) => (
+          <li class="shrink-0">
+            <NavLink
+              item={item}
+              current={isCurrent(item)}
+              class="headline aria-[current=page]:text-gold-600 block py-2.5 text-[1.05rem] font-extrabold whitespace-nowrap"
+            />
+          </li>
+        ))
+      }
+    </ul>
+    <div class="bg-gold-x h-[3px]" aria-hidden="true"></div>
+  </nav>
+</div>
+
+<!-- Desktop main nav -->
+<nav aria-label="Main" class="bg-paper sticky top-0 z-40 hidden shadow-[0_2px_8px_rgb(0_0_0/0.06)] lg:block">
+  <div class="border-line border-t">
+    <ul class="mx-auto flex max-w-[1440px] items-stretch px-6">
+      <li class="flex">
+        <a
+          href="/"
+          class="bg-gold flex items-center px-7 xl:px-10"
+          aria-label="Home"
+          aria-current={path === '/' ? 'page' : undefined}
+        >
+          <Icon name="home" class="size-7" />
+        </a>
+      </li>
+      {
+        settings.nav.map((item, i) => (
+          <li
+            class:list={[
+              'group relative flex flex-auto items-stretch justify-center',
+              i > 0 && 'before:bg-line before:absolute before:top-1/2 before:left-0 before:h-7 before:w-px before:-translate-y-1/2',
+            ]}
+          >
+            <NavLink
+              item={item}
+              current={isCurrent(item)}
+              class="headline hover:text-gold-600 aria-[current=page]:text-gold-600 flex items-center gap-1 px-2 py-4 text-[1.2rem] font-extrabold whitespace-nowrap xl:text-[1.45rem]"
+            >
+              {item.label}
+              {item.children.length > 0 && <Icon name="chevron-down" class="size-4 stroke-[3]" />}
+            </NavLink>
+            {item.children.length > 0 && (
+              <ul class="border-gold-500 bg-paper invisible absolute top-full left-0 z-50 min-w-60 translate-y-1 border-t-4 py-2 opacity-0 shadow-xl transition group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
+                {item.children.map((child) => (
+                  <li>
+                    <NavLink
+                      item={child}
+                      class="hover:bg-gold-200 block px-5 py-2 font-display text-lg font-bold uppercase"
+                    />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+  <div class="bg-gold-x h-1" aria-hidden="true"></div>
+</nav>

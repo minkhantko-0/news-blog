@@ -1,0 +1,63 @@
+---
+import type { NavItem, SiteSettings } from '~/lib/content';
+import Logo from '../ui/Logo.astro';
+import SocialLinks from '../ui/SocialLinks.astro';
+import NavLink from './NavLink.astro';
+
+interface Props {
+  settings: SiteSettings;
+}
+
+const { settings } = Astro.props;
+
+const link = (label: string, href: string): NavItem => ({ label, href, children: [] });
+
+const columns: { title: string; items: NavItem[] }[] = [
+  { title: 'Sections', items: settings.nav },
+  {
+    title: 'Company',
+    items: [link('About', '/about/'), link('Advertise', '/advertise/'), link('News Tip', '/news-tip/'), link('Contact', '/contact/')],
+  },
+  {
+    title: 'Standards',
+    items: [
+      link('Editorial Standards', '/editorial-standards/'),
+      link('Corrections', '/corrections/'),
+      link('Privacy', '/privacy/'),
+      link('Terms', '/terms/'),
+    ],
+  },
+];
+---
+
+<footer class="bg-night mt-12 text-white lg:mt-16">
+  <div class="bg-gold-x h-1" aria-hidden="true"></div>
+  <div class="mx-auto grid max-w-[1440px] gap-10 px-4 py-10 lg:grid-cols-[1fr_2fr] lg:px-6 lg:py-14">
+    <div class="flex flex-col items-start gap-5">
+      <Logo variant="dark" tagline={settings.tagline} />
+      <p class="max-w-sm text-sm text-white/70">Celebrity, entertainment, sports and viral news, first and on every platform.</p>
+      <SocialLinks links={settings.social} iconClass="size-6" />
+    </div>
+    <div class="grid grid-cols-2 gap-8 sm:grid-cols-3">
+      {
+        columns.map((col) => (
+          <div>
+            <h2 class="headline text-gold-400 mb-3 text-lg font-extrabold italic">{col.title}</h2>
+            <ul class="space-y-2">
+              {col.items.map((item) => (
+                <li>
+                  <NavLink item={item} class="text-sm text-white/80 hover:text-white hover:underline" />
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+  <div class="border-t border-white/10">
+    <p class="mx-auto max-w-[1440px] px-4 py-5 text-xs text-white/60 lg:px-6">
+      {`© ${new Date().getFullYear()} ${settings.name}. All rights reserved.`}
+    </p>
+  </div>
+</footer>

@@ -1,0 +1,40 @@
+---
+/**
+ * Standard story card (Latest News). Row with thumbnail on phones, stacked
+ * card with the tag over the image from small tablets up.
+ */
+import type { StorySummary } from '~/lib/content';
+import Img from '../ui/Img.astro';
+import PlayBadge from '../ui/PlayBadge.astro';
+import StoryTag from '../ui/StoryTag.astro';
+import TimeAgo from '../ui/TimeAgo.astro';
+
+interface Props {
+  story: StorySummary;
+}
+
+const { story } = Astro.props;
+---
+
+<article class="group">
+  <a href={story.href} class="flex gap-3 sm:block">
+    <div class="bg-line relative aspect-[4/3] w-[38%] shrink-0 overflow-hidden sm:aspect-[16/10] sm:w-full">
+      <Img
+        image={story.image}
+        aspect={[16, 10]}
+        sizes="(min-width: 1440px) 280px, (min-width: 1280px) 20vw, (min-width: 640px) 45vw, 38vw"
+        maxWidth={800}
+        class="transition duration-500 group-hover:scale-[1.03]"
+      />
+      <span class="absolute bottom-2 left-2 hidden sm:block"><StoryTag story={story} /></span>
+      {story.hasVideo && <PlayBadge size="sm" class="absolute right-2 bottom-2" />}
+    </div>
+    <div class="min-w-0 flex-1 sm:pt-2.5">
+      <StoryTag story={story} class="mb-1.5 sm:hidden" />
+      <h3 class="headline group-hover:text-gold-600 line-clamp-4 text-[1.1rem] sm:text-[1.3rem]">
+        {story.title}
+      </h3>
+      <TimeAgo iso={story.publishedAt} class="mt-1.5 block" />
+    </div>
+  </a>
+</article>

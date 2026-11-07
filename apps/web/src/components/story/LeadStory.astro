@@ -1,0 +1,39 @@
+---
+/** The homepage lead: full-bleed image with the headline over it. */
+import type { StorySummary } from '~/lib/content';
+import Img from '../ui/Img.astro';
+import PlayBadge from '../ui/PlayBadge.astro';
+import StoryTag from '../ui/StoryTag.astro';
+
+interface Props {
+  story: StorySummary;
+}
+
+const { story } = Astro.props;
+---
+
+<article class="group bg-night relative h-full overflow-hidden">
+  <a href={story.href} class="block h-full">
+    <div class="aspect-[4/3] sm:aspect-[16/10] lg:aspect-auto lg:h-full">
+      <Img
+        image={story.image}
+        aspect={[16, 10]}
+        sizes="(min-width: 1440px) 680px, (min-width: 1024px) 48vw, 100vw"
+        priority
+        class="transition duration-500 group-hover:scale-[1.02]"
+      />
+    </div>
+    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent" aria-hidden="true"></div>
+    <div class="absolute inset-x-0 bottom-0 flex items-end gap-4 p-4 sm:p-6 lg:p-7">
+      <div class="min-w-0 flex-1">
+        <StoryTag story={story} size="lg" />
+        <h2
+          class="headline mt-2 text-[1.85rem] text-white decoration-4 underline-offset-4 group-hover:underline sm:text-[2.6rem] lg:text-[2.9rem] xl:text-[3.4rem]"
+        >
+          {story.title}
+        </h2>
+      </div>
+      {story.hasVideo && <PlayBadge size="lg" class="mb-1" />}
+    </div>
+  </a>
+</article>

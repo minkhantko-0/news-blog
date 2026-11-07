@@ -13,7 +13,7 @@ const { image } = Astro.props.node;
   <Img image={image} aspect={[3, 2]} sizes="(min-width: 1024px) 760px, 100vw" maxWidth={1600} />
   {
     (image.caption || image.credit) && (
-      <figcaption class="text-muted mt-2 text-sm">
+      <figcaption class="text-muted mt-2 text-sm" data-pagefind-ignore>
         {image.caption}
         {image.credit && <span class="ml-1 text-xs tracking-wide uppercase">Photo: {image.credit}</span>}
       </figcaption>

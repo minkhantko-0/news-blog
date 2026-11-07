@@ -59,26 +59,47 @@ const ytId = platform.kind === 'youtube' ? youtubeId(url) : undefined;
 }
 
 <script>
-  type Loader = { src: string; markup: (url: string) => string; process?: (el: HTMLElement) => void };
+  /** `markup` wraps the link card, so the card stays visible until the platform draws the post. */
+  type Loader = { src: string; markup: (url: string, card: string) => string; process?: (el: HTMLElement) => void };
 
   const loaders: Record<string, Loader> = {
     instagram: {
       src: 'https://www.instagram.com/embed.js',
-      markup: (url) => `<blockquote class="instagram-media" data-instgrm-permalink="${url}" data-instgrm-version="14" style="max-width:540px;width:100%;margin:0 auto"></blockquote>`,
+      markup: (url, card) =>
+        `<blockquote class="instagram-media" data-instgrm-permalink="${url}" data-instgrm-version="14" style="max-width:540px;width:100%;margin:0 auto;border:0;padding:0;background:none">${card}</blockquote>`,
       process: () => (window as unknown as { instgrm?: { Embeds: { process(): void } } }).instgrm?.Embeds.process(),
     },
     tiktok: {
       src: 'https://www.tiktok.com/embed.js',
-      markup: (url) => {
+      markup: (url, card) => {
         const id = url.match(/video\/(\d+)/)?.[1] ?? '';
-        return `<blockquote class="tiktok-embed" cite="${url}" data-video-id="${id}" style="max-width:605px;min-width:325px"><section></section></blockquote>`;
+        return `<blockquote class="tiktok-embed" cite="${url}" data-video-id="${id}" style="max-width:605px;min-width:325px;border:0;margin:0 auto"><section>${card}</section></blockquote>`;
       },
     },
     x: {
       src: 'https://platform.twitter.com/widgets.js',
-      markup: (url) => `<blockquote class="twitter-tweet" data-dnt="true"><a href="${url}"></a></blockquote>`,
+      // The card is a link to the post, which is what X's script looks for.
+      markup: (_url, card) => `<blockquote class="twitter-tweet" data-dnt="true" style="margin:0">${card}</blockquote>`,
       process: (el) => (window as unknown as { twttr?: { widgets: { load(e: HTMLElement): void } } }).twttr?.widgets.load(el),
     },
+  };
+
+  /** True once the platform has drawn the post (an iframe of real height). */
+  const rendered = (el: HTMLElement) => [...el.querySelectorAll('iframe')].some((f) => f.offsetHeight >= 100);
+
+  /**
+   * Deleted, private or fake posts make some platforms draw nothing (or an
+   * empty box). Bring the link card back if no post appears in time.
+   */
+  const restoreIfEmpty = (el: HTMLElement, card: string) => {
+    const started = Date.now();
+    const timer = setInterval(() => {
+      if (rendered(el)) return clearInterval(timer);
+      if (Date.now() - started > 15_000) {
+        clearInterval(timer);
+        el.innerHTML = card;
+      }
+    }, 1500);
   };
 
   const loadedScripts = new Map<string, Promise<void>>();
@@ -104,11 +125,12 @@ const ytId = platform.kind === 'youtube' ? youtubeId(url) : undefined;
     const url = el.dataset.embedUrl;
     if (!loader || !url) return; // unsupported platforms keep the link card
     const card = el.innerHTML;
-    el.innerHTML = loader.markup(url.replace(/"/g, '&quot;'));
+    el.innerHTML = loader.markup(url.replace(/"/g, '&quot;'), card);
     try {
       const firstLoad = !loadedScripts.has(loader.src);
       await loadScript(loader.src);
       if (!firstLoad) loader.process?.(el); // the script processes the page itself on first load
+      restoreIfEmpty(el, card);
     } catch {
       el.innerHTML = card; // blocked or offline: keep the link card
     }

@@ -61,7 +61,7 @@ const isCurrent = (item: NavItem) => Boolean(item.href && item.href !== '/' && p
 
   <!-- Phone/tablet: swipeable sections -->
   <nav aria-label="Sections" class="border-line border-t lg:hidden">
-    <ul class="scrollbar-none flex gap-5 overflow-x-auto px-3 sm:px-4">
+    <ul class="scrollbar-none flex gap-5 overflow-x-auto px-3 pr-12 [mask-image:linear-gradient(to_right,black_calc(100%-3rem),transparent)] sm:px-4 sm:pr-12">
       {
         settings.nav.map((item) => (
           <li class="shrink-0">

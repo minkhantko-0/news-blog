@@ -61,7 +61,7 @@ const crumbs = [
         }
         {
           (article.image.caption || article.image.credit) && (
-            <figcaption class="text-muted mt-2 text-sm">
+            <figcaption class="text-muted mt-2 text-sm" data-pagefind-ignore>
               {article.image.caption}
               {article.image.credit && <span class="ml-1 text-xs tracking-wide uppercase">Photo: {article.image.credit}</span>}
             </figcaption>

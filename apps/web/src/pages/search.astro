@@ -31,6 +31,7 @@ import BaseLayout from '~/layouts/BaseLayout.astro';
         element: '#search',
         showSubResults: false,
         showImages: true,
+        showEmptyFilters: false,
         resetStyles: false,
         translations: { placeholder: 'Search stories, people, shows…' },
       });
@@ -66,6 +67,11 @@ import BaseLayout from '~/layouts/BaseLayout.astro';
   }
   .hp-search .pagefind-ui__result-link:hover {
     color: var(--color-gold-600);
+  }
+  /* Pagefind puts a 60px gap between filters and results; when they stack on
+     phones that becomes empty space. Keep it only side by side. */
+  .hp-search .pagefind-ui .pagefind-ui__drawer {
+    row-gap: 0;
   }
   .hp-search mark {
     background: var(--color-gold-200);

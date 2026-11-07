@@ -94,6 +94,20 @@ const imageOrigin = import.meta.env.PUBLIC_SANITY_PROJECT_ID ? 'https://cdn.sani
         soon.showModal();
       });
 
+      // Overscroll colour: bouncing past the bottom of the page (Mac, iPhone) should
+      // show the dark footer colour, past the top the white header colour.
+      // Dark once the reader is in the lower half of the page. See html.at-footer.
+      let overscrollFrame = 0;
+      const updateOverscroll = () => {
+        overscrollFrame = 0;
+        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+        document.documentElement.classList.toggle('at-footer', maxScroll > 0 && window.scrollY >= maxScroll / 2);
+      };
+      const queueOverscroll = () => (overscrollFrame ||= requestAnimationFrame(updateOverscroll));
+      window.addEventListener('scroll', queueOverscroll, { passive: true });
+      window.addEventListener('resize', queueOverscroll, { passive: true });
+      updateOverscroll();
+
       // Carousels: arrow buttons scroll the track
       for (const root of document.querySelectorAll<HTMLElement>('[data-carousel]')) {
         const track = root.querySelector<HTMLElement>('[data-carousel-track]');

@@ -63,6 +63,13 @@
   html {
     -webkit-text-size-adjust: 100%;
     scroll-padding-top: 5rem;
+    /* What "rubber-band" overscroll (Mac, iPhone) shows past the page edges:
+       white above the header, dark below the footer (class set in BaseLayout). */
+    background-color: var(--color-paper);
+  }
+
+  html.at-footer {
+    background-color: var(--color-night);
   }
 
   body {

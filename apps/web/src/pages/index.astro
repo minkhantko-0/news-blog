@@ -8,6 +8,7 @@ import StoryCard from '~/components/story/StoryCard.astro';
 import SectionHeading from '~/components/ui/SectionHeading.astro';
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { content } from '~/lib/content';
+import { webPage } from '~/lib/seo/schema';
 
 const settings = await content.getSiteSettings();
 const home = await content.getHomepage();
@@ -17,6 +18,7 @@ const container = 'mx-auto max-w-[1440px] px-3 sm:px-4 lg:px-6';
 <BaseLayout
   title={`${settings.name}: Celebrity & Entertainment News`}
   description="Breaking celebrity, entertainment, sports and viral news, plus HollywoodPest Originals video."
+  schema={[webPage('/', `${settings.name}: Celebrity & Entertainment News`)]}
 >
   <h1 class="sr-only">{settings.name}: celebrity and entertainment news</h1>
 

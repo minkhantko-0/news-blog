@@ -173,6 +173,10 @@ export interface SiteSettings {
   tagline: string;
   nav: NavItem[];
   social: SocialLink[];
+  /** Used for link previews when a page has no image of its own. */
+  defaultShareImage?: MediaImage;
+  /** robots.txt: let AI companies' training crawlers in. Search/answer crawlers are always allowed. */
+  allowAiTraining: boolean;
 }
 
 export interface Homepage {

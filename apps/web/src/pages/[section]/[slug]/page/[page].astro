@@ -3,12 +3,13 @@ import CategoryView from '~/components/views/CategoryView.astro';
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import type { Category } from '~/lib/content';
 import { categoryPagePaths } from '~/lib/routes';
+import { breadcrumbs } from '~/lib/seo/schema';
 
 export const getStaticPaths = () => categoryPagePaths('sub');
 
 const { category, pageNumber } = Astro.props as { category: Category; pageNumber: number };
 ---
 
-<BaseLayout title={`${category.title} News, Page ${pageNumber}`} description={`More ${category.title} stories, page ${pageNumber}.`}>
+<BaseLayout title={`${category.title} News, Page ${pageNumber}`} description={`More ${category.title} stories, page ${pageNumber}.`} schema={[breadcrumbs([...(category.parent ? [{ name: category.parent.title, path: category.parent.href }] : []), { name: category.title, path: category.href }])]}>
   <CategoryView category={category} pageNumber={pageNumber} />
 </BaseLayout>

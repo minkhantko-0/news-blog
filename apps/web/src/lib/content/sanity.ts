@@ -137,6 +137,8 @@ interface RawSettings {
   tagline?: string;
   nav?: RawNavItem[];
   social?: SocialLink[];
+  defaultShareImage?: RawImage;
+  aiTraining?: boolean;
 }
 
 // ---------- GROQ ----------
@@ -190,7 +192,7 @@ const articlesQuery = /* groq */ `*[_type == "article" && ${live}] | ${newestFir
 const navLinkFields = /* groq */ `label, kind, url, "pageSlug": page->slug.current, "category": category->${categoryFields}`;
 
 const settingsQuery = /* groq */ `*[_id == "siteSettings"][0]{
-  name, tagline, social,
+  name, tagline, social, aiTraining, defaultShareImage${imageFields},
   nav[]{ ${navLinkFields}, children[]{ ${navLinkFields} } }
 }`;
 
@@ -366,6 +368,8 @@ export const sanitySource: ContentSource = {
       tagline: raw?.tagline ?? 'Social-First Media Company',
       nav: (raw?.nav ?? []).map(toNavItem),
       social: raw?.social ?? [],
+      defaultShareImage: raw?.defaultShareImage?.asset ? toImage(raw.defaultShareImage, raw.name ?? 'HollywoodPest') : undefined,
+      allowAiTraining: raw?.aiTraining ?? false,
     };
   },
 

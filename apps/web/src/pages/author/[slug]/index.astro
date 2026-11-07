@@ -2,6 +2,7 @@
 import AuthorView from '~/components/views/AuthorView.astro';
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { content, type Author } from '~/lib/content';
+import { breadcrumbs, profilePage } from '~/lib/seo/schema';
 
 export async function getStaticPaths() {
   const authors = await content.getAuthors();
@@ -11,6 +12,12 @@ export async function getStaticPaths() {
 const { author } = Astro.props as { author: Author };
 ---
 
-<BaseLayout title={`${author.name}${author.role ? `, ${author.role}` : ''}`} description={author.bio.slice(0, 160)}>
+<BaseLayout
+  title={`${author.name}${author.role ? `, ${author.role}` : ''}`}
+  description={author.bio.slice(0, 160)}
+  type="profile"
+  image={author.photo}
+  schema={[profilePage(author), breadcrumbs([{ name: author.name, path: author.href }])]}
+>
   <AuthorView author={author} pageNumber={1} />
 </BaseLayout>

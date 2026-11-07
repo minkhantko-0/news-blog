@@ -3,6 +3,7 @@ import RichText from '~/components/portable/RichText.astro';
 import CategoryView from '~/components/views/CategoryView.astro';
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { sectionPaths, type SectionRoute } from '~/lib/routes';
+import { breadcrumbs } from '~/lib/seo/schema';
 
 export const getStaticPaths = sectionPaths;
 
@@ -15,6 +16,9 @@ const route = Astro.props as SectionRoute;
       title={route.category.seo.title ?? `${route.category.title} News`}
       description={route.category.seo.description ?? route.category.description ?? `The latest ${route.category.title} stories.`}
       noindex={route.category.seo.noindex}
+      image={route.category.seo.image}
+      schema={[breadcrumbs([{ name: route.category.title, path: route.category.href }])]}
+      feed={{ title: `HollywoodPest: ${route.category.title}`, href: `${route.category.href}rss.xml` }}
     >
       <CategoryView category={route.category} pageNumber={1} />
     </BaseLayout>
@@ -23,6 +27,8 @@ const route = Astro.props as SectionRoute;
       title={route.page.seo.title ?? route.page.title}
       description={route.page.seo.description ?? route.page.title}
       noindex={route.page.seo.noindex}
+      image={route.page.seo.image}
+      schema={[breadcrumbs([{ name: route.page.title, path: route.page.href }])]}
     >
       <article class="mx-auto max-w-3xl px-4 py-10 lg:py-14">
         <h1 class="headline text-[2.6rem] font-black italic sm:text-[3.2rem]">{route.page.title}</h1>

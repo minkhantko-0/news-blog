@@ -57,7 +57,20 @@ export const siteSettings = defineType({
       of: [defineArrayMember({ type: 'socialLink' })],
       description: 'Shown in the header and footer, and told to Google as your official profiles.',
     }),
-    defineField({ name: 'defaultShareImage', title: 'Default share image', type: 'mediaImage' }),
+    defineField({
+      name: 'defaultShareImage',
+      title: 'Default share image',
+      type: 'mediaImage',
+      description: 'Shown when a page without its own image is shared on social media. 1200×630. Leave empty to use the built-in branded image.',
+    }),
+    defineField({
+      name: 'aiTraining',
+      title: 'Allow AI training crawlers',
+      type: 'boolean',
+      initialValue: false,
+      description:
+        'AI search and answer engines (ChatGPT search, Perplexity, Claude, Google AI Overviews) can always read and cite our stories. This switch is only about letting AI companies copy stories to train their models (GPTBot, ClaudeBot, Google-Extended, CCBot…). Takes effect on the next publish.',
+    }),
   ],
   preview: { prepare: () => ({ title: 'Site settings' }) },
 });

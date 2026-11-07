@@ -3,6 +3,8 @@ import ArticleView from '~/components/views/ArticleView.astro';
 import CategoryView from '~/components/views/CategoryView.astro';
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { sectionChildPaths, type SectionChildRoute } from '~/lib/routes';
+import { breadcrumbs, newsArticle } from '~/lib/seo/schema';
+import { absolute } from '~/lib/seo/site';
 
 export const getStaticPaths = sectionChildPaths;
 
@@ -15,6 +17,23 @@ const route = Astro.props as SectionChildRoute;
       title={route.article.seo.title ?? route.article.title}
       description={route.article.seo.description ?? route.article.dek ?? route.article.title}
       noindex={route.article.seo.noindex}
+      image={route.article.seo.image ?? route.article.image}
+      type="article"
+      article={{
+        publishedAt: route.article.publishedAt,
+        updatedAt: route.article.updatedAt,
+        section: route.article.parentCategory?.title ?? route.article.category.title,
+        tags: route.article.tags.map((t) => t.title),
+        authorUrls: route.article.authors.map((a) => absolute(a.href)),
+      }}
+      schema={[
+        newsArticle(route.article),
+        breadcrumbs([
+          ...(route.article.parentCategory ? [{ name: route.article.parentCategory.title, path: route.article.parentCategory.href }] : []),
+          { name: route.article.category.title, path: route.article.category.href },
+          { name: route.article.title, path: route.article.href },
+        ]),
+      ]}
     >
       <ArticleView article={route.article} />
     </BaseLayout>
@@ -23,6 +42,8 @@ const route = Astro.props as SectionChildRoute;
       title={route.category.seo.title ?? `${route.category.title} News`}
       description={route.category.seo.description ?? route.category.description ?? `The latest ${route.category.title} stories.`}
       noindex={route.category.seo.noindex}
+      image={route.category.seo.image}
+      schema={[breadcrumbs([...(route.category.parent ? [{ name: route.category.parent.title, path: route.category.parent.href }] : []), { name: route.category.title, path: route.category.href }])]}
     >
       <CategoryView category={route.category} pageNumber={1} />
     </BaseLayout>

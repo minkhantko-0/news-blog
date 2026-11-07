@@ -5,6 +5,7 @@ import Img from '~/components/ui/Img.astro';
 import SectionHeading from '~/components/ui/SectionHeading.astro';
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { content, type ShowDetail } from '~/lib/content';
+import { breadcrumbs } from '~/lib/seo/schema';
 
 export async function getStaticPaths() {
   const shows = await content.getShows();
@@ -15,7 +16,12 @@ const { show } = Astro.props as { show: ShowDetail };
 const episodes = (await content.getVideos()).filter((v) => v.show?.id === show.id);
 ---
 
-<BaseLayout title={`${show.name}: A HollywoodPest Original`} description={show.description ?? `Watch ${show.name}, a HollywoodPest Original.`}>
+<BaseLayout
+  title={`${show.name}: A HollywoodPest Original`}
+  description={show.description ?? `Watch ${show.name}, a HollywoodPest Original.`}
+  image={show.image}
+  schema={[breadcrumbs([{ name: 'Originals', path: '/originals/' }, { name: show.name, path: show.href }])]}
+>
   <section class="bg-night relative overflow-hidden text-white">
     <div class="absolute inset-0 opacity-40">
       <Img image={show.image} aspect={[16, 6]} sizes="100vw" priority maxWidth={1600} />

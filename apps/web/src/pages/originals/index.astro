@@ -3,11 +3,16 @@ import Breadcrumbs from '~/components/article/Breadcrumbs.astro';
 import Img from '~/components/ui/Img.astro';
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { content } from '~/lib/content';
+import { breadcrumbs } from '~/lib/seo/schema';
 
 const shows = await content.getShows();
 ---
 
-<BaseLayout title="HollywoodPest Originals" description="Original shows from HollywoodPest.">
+<BaseLayout
+  title="HollywoodPest Originals"
+  description="Original shows from HollywoodPest."
+  schema={[breadcrumbs([{ name: 'Originals', path: '/originals/' }])]}
+>
   <div class="mx-auto max-w-[1440px] px-3 pt-4 sm:px-4 lg:px-6 lg:pt-6">
     <Breadcrumbs items={[{ label: 'Originals' }]} class="mb-3" />
     <h1 class="headline mb-8 text-[2.6rem] font-black italic sm:text-[3.4rem]">

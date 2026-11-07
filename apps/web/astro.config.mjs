@@ -12,7 +12,15 @@ export default defineConfig({
   output: 'static',
   trailingSlash: 'always',
   build: { format: 'directory' },
-  integrations: [edgeFiles({ projectId: env.PUBLIC_SANITY_PROJECT_ID, dataset: env.PUBLIC_SANITY_DATASET || 'production' })],
+  integrations: [
+    edgeFiles({
+      projectId: env.PUBLIC_SANITY_PROJECT_ID,
+      dataset: env.PUBLIC_SANITY_DATASET || 'production',
+      site: env.PUBLIC_SITE_URL || 'https://hollywoodpest.example',
+      // Only once the site is open to search engines.
+      indexNowKey: env.PUBLIC_ALLOW_INDEXING === 'true' ? env.INDEXNOW_KEY : undefined,
+    }),
+  ],
   prefetch: { prefetchAll: false, defaultStrategy: 'hover' },
   fonts: [
     {

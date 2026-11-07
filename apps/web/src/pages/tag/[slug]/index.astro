@@ -3,6 +3,7 @@ import TagView from '~/components/views/TagView.astro';
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { content, type Tag } from '~/lib/content';
 import { MIN_STORIES_TO_INDEX, withTag } from '~/lib/content/derive';
+import { breadcrumbs } from '~/lib/seo/schema';
 
 export async function getStaticPaths() {
   const [tags, articles] = await Promise.all([content.getTags(), content.getArticles()]);
@@ -16,6 +17,7 @@ const { tag, count } = Astro.props as { tag: Tag; count: number };
   title={`${tag.title}: Latest Stories`}
   description={`The latest ${tag.title} stories from HollywoodPest.`}
   noindex={tag.noindex || count < MIN_STORIES_TO_INDEX}
+  schema={[breadcrumbs([{ name: `#${tag.title}`, path: tag.href }])]}
 >
   <TagView tag={tag} pageNumber={1} />
 </BaseLayout>

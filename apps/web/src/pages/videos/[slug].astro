@@ -8,6 +8,7 @@ import SectionHeading from '~/components/ui/SectionHeading.astro';
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { content, type Video } from '~/lib/content';
 import { formatDateTime } from '~/lib/format';
+import { breadcrumbs, videoObject } from '~/lib/seo/schema';
 
 export async function getStaticPaths() {
   const videos = await content.getVideos();
@@ -23,7 +24,20 @@ const more = [
 const url = new URL(video.href, Astro.site).href;
 ---
 
-<BaseLayout title={video.title} description={video.description ?? video.title}>
+<BaseLayout
+  title={video.title}
+  description={video.description ?? video.title}
+  type="video.other"
+  image={video.image}
+  schema={[
+    videoObject(video),
+    breadcrumbs([
+      { name: 'Videos', path: '/videos/' },
+      ...(video.show ? [{ name: video.show.name, path: video.show.href }] : []),
+      { name: video.title, path: video.href },
+    ]),
+  ]}
+>
   <div class="mx-auto max-w-[1440px] px-3 pt-4 sm:px-4 lg:px-6 lg:pt-6">
     <div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_340px] xl:gap-14">
       <article class="min-w-0">

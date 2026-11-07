@@ -63,8 +63,14 @@ pnpm exec wrangler d1 execute news-blog --remote --command "select created_at, t
 2. Settings:
    - **Root directory:** `/` (repo root)
    - **Build command:** `pnpm install --frozen-lockfile && pnpm --filter web build`
-   - **Deploy command:** `cd apps/web && pnpm exec wrangler deploy`
-   - **Build variables:** `PUBLIC_SANITY_PROJECT_ID=bgva358g`, `PUBLIC_SANITY_DATASET=production`, `PUBLIC_SITE_URL=https://<domain>`, `PUBLIC_TURNSTILE_SITE_KEY=<from step 3>`
+   - **Deploy command:** `cd apps/web && pnpm exec wrangler deploy && node scripts/indexnow.mjs`
+   - **Build variables:**
+     - `PUBLIC_SANITY_PROJECT_ID=bgva358g`
+     - `PUBLIC_SANITY_DATASET=production`
+     - `PUBLIC_SITE_URL=https://<domain>`
+     - `PUBLIC_TURNSTILE_SITE_KEY=<from step 3>`
+     - `PUBLIC_ALLOW_INDEXING=true`: opens the site to search engines. Without it every page says "noindex" and robots.txt blocks everything, which is what you want for previews.
+     - `INDEXNOW_KEY=<random>` (e.g. `openssl rand -hex 16`): lets the deploy tell Bing and others about new stories right away.
 3. Worker → **Settings → Domains & Routes → Add custom domain** → `<domain>` (and `www.<domain>` redirecting to it).
 4. Worker → **Settings → Builds → Deploy Hooks → Create** (branch `main`, name `sanity-publish`). Copy the URL: it's a secret.
 
@@ -106,7 +112,18 @@ pnpm exec sanity deploy      # → https://hollywoodpest.sanity.studio
 
 Invite editors at sanity.io/manage → **Members**. On the free plan everyone who can edit is an Administrator.
 
-## 9. Check it works
+## 9. Search engines and AI search
+
+1. **Google Search Console** (search.google.com/search-console): add a *Domain* property for `<domain>`. Cloudflare can add the verification record for you. Then **Sitemaps → add** `https://<domain>/sitemap-index.xml`.
+2. **Bing Webmaster Tools** (bing.com/webmasters): *Import from Google Search Console*. Bing also powers ChatGPT search results, and IndexNow (step 5) keeps it updated within minutes.
+3. **Google Publisher Center** (publishercenter.google.com): add the publication. The name must be exactly **HollywoodPest** (it matches the News sitemap). Add the site URL and the sections.
+4. **Cloudflare → AI Crawl Control** (for `<domain>`): new domains block AI crawlers by default, which would undo the GEO work.
+   - **Allow** the AI search crawlers: OAI-SearchBot, ChatGPT-User, PerplexityBot, Perplexity-User, Claude-SearchBot, Claude-User, DuckAssistBot.
+   - **Training crawlers** (GPTBot, ClaudeBot, CCBot, Google-Extended, Applebot-Extended, Meta-ExternalAgent, Bytespider): match the **Allow AI training crawlers** switch in Sanity → Site settings (off by default, so block them).
+   - Leave **Managed robots.txt** off: the site publishes its own `robots.txt`.
+5. Replace the placeholder social links in Sanity → **Site settings → Social accounts**. Real profile links are what tell Google and AI search engines which accounts are officially HollywoodPest.
+
+## 10. Check it works
 
 - [ ] Homepage, an article, a category page and search load on `https://<domain>`.
 - [ ] Publish a small edit in the Studio: the site updates within ~3 minutes.
@@ -114,6 +131,9 @@ Invite editors at sanity.io/manage → **Members**. On the free plan everyone wh
 - [ ] Send a test tip with a photo: the email arrives, and the file link opens.
 - [ ] Change a published story's URL: the old URL redirects after the rebuild.
 - [ ] Next morning: a backup exists in the `news-blog-backups` bucket.
+- [ ] `https://<domain>/robots.txt` shows the full rules (not "Pre-launch"), and `/sitemap-index.xml`, `/sitemap-news.xml`, `/rss.xml`, `/llms.txt` load.
+- [ ] Google's **Rich Results Test** on an article URL finds a valid *NewsArticle* and *Breadcrumb*.
+- [ ] Paste an article link into the **Facebook Sharing Debugger** (or a WhatsApp chat): the preview shows the photo, headline and summary.
 
 ## Limits to keep in mind (free plans)
 

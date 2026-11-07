@@ -50,3 +50,12 @@ All sample content is fictional: made-up people and events, placeholder photos a
 - **Scheduler locally:** needs a Sanity token with the Editor role in `workers/scheduler/.dev.vars` (copy `.dev.vars.example`), then `pnpm --filter scheduler dev` and fire a run with `curl "http://localhost:8788/__scheduled?cron=*%2F5+*+*+*+*"`.
 - **Smoke tests:** `pnpm smoke` checks redirects, scheduling and backups against the real dataset using your Sanity CLI login. It creates temporary `smoke-` documents and deletes them.
 - **Going live:** [docs/DEPLOY.md](docs/DEPLOY.md).
+
+## SEO and GEO (phase 4)
+
+- **Every page:** link-preview tags (Open Graph, X), canonical URL, and structured data for Google and AI search in `src/lib/seo/schema.ts`. Pages carry NewsArticle, VideoObject, ProfilePage and BreadcrumbList, plus the organization and website.
+- **Built with the site:** `/sitemap-index.xml` (news, articles, pages), `/rss.xml` plus one feed per section (`/news/rss.xml`…), `/robots.txt`, `/llms.txt`.
+- **Launch switch:** pages stay out of search results until the build has `PUBLIC_ALLOW_INDEXING=true`.
+- **AI crawlers:** AI search engines are allowed. AI training crawlers follow Sanity → Site settings → *Allow AI training crawlers*.
+- **IndexNow:** after each deploy, `scripts/indexnow.mjs` sends the pages changed in the last hour to Bing and others.
+- **Brand images:** `public/og-default.png` (default share image), `public/logo-512.png` and `public/apple-touch-icon.png` are placeholders. Replace them with the real logo.

@@ -16,3 +16,6 @@ apps/studio/seed/*.ndjson
 .dev.vars
 .dev.vars.*
 !.dev.vars.example
+
+# IndexNow queue written by the build (see scripts/indexnow.mjs)
+.indexnow/

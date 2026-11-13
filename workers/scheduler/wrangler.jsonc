@@ -14,7 +14,7 @@
   "r2_buckets": [{ "binding": "BACKUPS", "bucket_name": "news-blog-backups" }],
 
   "vars": {
-    "SANITY_PROJECT_ID": "bgva358g",
+    "SANITY_PROJECT_ID": "ygdsg0vc",
     "SANITY_DATASET": "production",
     "BACKUP_KEEP_DAYS": "30"
   },

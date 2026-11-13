@@ -16,7 +16,14 @@
 
   // Private storage for the forms. Created at deploy time (see docs/DEPLOY.md);
   // `wrangler dev` simulates both locally.
-  "d1_databases": [{ "binding": "DB", "database_name": "news-blog", "migrations_dir": "./migrations" }],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "news-blog",
+      "database_id": "3cc782ab-86f1-4c9c-8ca1-0607f155468f",
+      "migrations_dir": "./migrations"
+    }
+  ],
   "r2_buckets": [{ "binding": "TIP_FILES", "bucket_name": "news-blog-tip-files" }],
 
   // Email notifications need a domain with Cloudflare Email Routing. Until then

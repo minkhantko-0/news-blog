@@ -33,13 +33,14 @@
   ],
   "r2_buckets": [{ "binding": "TIP_FILES", "bucket_name": "news-blog-tip-files" }],
 
-  // Email notifications need a domain with Cloudflare Email Routing. Until then
-  // the Worker only logs that a tip arrived. At launch, add:
-  //   "send_email": [{ "name": "SEND_EMAIL", "destination_address": "tips@<domain>" }]
-  // and set NOTIFY_FROM / NOTIFY_TO below.
+  // New tips and advertising enquiries are emailed to the newsroom inbox
+  // (Cloudflare Email Routing on hollywoodpestmedia.com). The inbox must be a
+  // verified destination address in Email Routing. To change it, update both
+  // destination_address and NOTIFY_TO, and verify the new address first.
+  "send_email": [{ "name": "SEND_EMAIL", "destination_address": "hollywoodpest@outlook.com" }],
   "vars": {
-    "NOTIFY_FROM": "",
-    "NOTIFY_TO": ""
+    "NOTIFY_FROM": "tips@hollywoodpestmedia.com",
+    "NOTIFY_TO": "hollywoodpest@outlook.com"
   },
 
   "observability": { "enabled": true }

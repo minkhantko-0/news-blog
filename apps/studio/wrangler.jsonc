@@ -4,6 +4,9 @@
   // Workers Builds runs `pnpm run build` (sanity build → ./dist) and `wrangler deploy`.
   "name": "news-blog-studio",
   "compatibility_date": "2026-11-01",
+  "routes": [{ "pattern": "admin.hollywoodpestmedia.com", "custom_domain": true }],
+  "workers_dev": false,
+  "preview_urls": false,
   "assets": {
     "directory": "./dist",
     // The Studio is a single-page app: every path loads index.html.

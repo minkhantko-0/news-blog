@@ -4,6 +4,13 @@
   "main": "./worker/index.ts",
   "compatibility_date": "2026-11-01",
 
+  // Live address. Cloudflare creates the DNS record and certificate on deploy.
+  // www → root is a Redirect Rule on the zone (dashboard), not served here.
+  "routes": [{ "pattern": "hollywoodpestmedia.com", "custom_domain": true }],
+  // Only the real domain: no duplicate copy of the site on *.workers.dev.
+  "workers_dev": false,
+  "preview_urls": false,
+
   // Static HTML from `astro build`. Requests to these files are free and unlimited.
   // Only /api/* runs the Worker (forms), so page views never count against Worker limits.
   "assets": {

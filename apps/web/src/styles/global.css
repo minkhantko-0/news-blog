@@ -66,6 +66,13 @@
     /* What "rubber-band" overscroll (Mac, iPhone) shows past the page edges:
        white above the header, dark below the footer (class set in BaseLayout). */
     background-color: var(--color-paper);
+    /* Keeps the page from shifting sideways when the scroll lock below hides the scrollbar. */
+    scrollbar-gutter: stable;
+  }
+
+  /* While a popup is open (phone menu, "coming soon"), the page behind it must not scroll. */
+  html:has(dialog:modal) {
+    overflow: hidden;
   }
 
   html.at-footer {
